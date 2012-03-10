@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<CheckBoxPreference
+	    android:key="musicOn"
+	    android:title="@string/music_title"
+	    android:summary="@string/music_summary"
+	    android:defaultValue="true"/>
+	<CheckBoxPreference
+	    android:key="hintsOn"
+	    android:title="@string/hints_title"
+	    android:summary="@string/hints_summary"
+	    android:defaultValue="true"/>
+		
+	<CheckBoxPreference
+		android:key="vietOn"
+		android:title="@string/language_title"
+		android:summary="@string/language_summary"
+		android:defaultValue="true"/>
+	<ListPreference
+	    android:key="language"
+        android:title="@string/language_title"
+        android:summary="@string/language_summary"
+        android:defaultValue="@string/eng_lan"
+        android:entries="@array/entries"
+        android:entryValues="@array/entryValues"/>
+</PreferenceScreen>
