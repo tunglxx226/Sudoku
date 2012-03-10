@@ -1,1 +1,2 @@
 This requirement of Sudoku game.
+Add extra information. (Update from first commit)
