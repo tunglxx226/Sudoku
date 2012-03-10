@@ -12,31 +12,35 @@
         <activity
             android:name=".Sudoku"
             android:label="@string/app_name"
-			android:configChanges="locale"			>
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"
+                    android:screenOrientation="portrait" />
             </intent-filter>
         </activity>
         <activity
             android:name=".About"
             android:label="@string/about_title"
             android:theme="@android:style/Theme.Dialog"
-			android:configChanges="locale">
+            android:screenOrientation="portrait">
         </activity>
         
         <activity android:name=".Prefs"
+            android:screenOrientation="portrait"
             android:label="@string/settings_title">
         </activity>
         
         <activity android:name=".Game" 
-            android:label="@string/game_title">
+            android:label="@string/game_title"
+            android:screenOrientation="portrait">
         </activity>
 		
 		<activity android:name=".CongratScreen"
 			android:label="@string/congratscreen_title"
-			android:configChanges="locale">
+			android:configChanges="locale"
+			android:screenOrientation="portrait">
 		</activity>
     </application>
 
