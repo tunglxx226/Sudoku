@@ -26,10 +26,6 @@
 	<string name="music_summary">Play background music</string>
 	<string name="hints_title">Hints</string>
 	<string name="hints_summary">Show hints during play</string>
-	<string name="language_title">Language</string>
-	<string name="language_summary">Choose your preferred language</string>
-	<string name="eng_lan">English</string>
-	<string name="vi_lan">Tiếng Việt</string>
 	
 	
 	<string name="new_game_title">Difficulty</string>
