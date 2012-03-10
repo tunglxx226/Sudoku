@@ -6,3 +6,5 @@ The Team:
 	3. Nguyen Danh Lam
 	4. Ngo Xuan Thuan
 	5. Pham Tuan Cuong
+
+We are here to create a interesting Sudoku game on Android platform.
