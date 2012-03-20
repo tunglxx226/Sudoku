@@ -290,7 +290,7 @@ public class Game extends Activity
 	
 	protected void callCongratScreen()
 	{
-		Intent intent = new Intent(Game.this, CongratScreen.class);
+		Intent intent = new Intent(Game.this, FinishScreenNewVer.class);
 		startActivity(intent);
 		finish();
 	}
