@@ -12,4 +12,6 @@
 	<color name="puzzle_selected">#64ff8000</color>
 	<color name="blank_black">#6456648f</color>
 	<color name="blank_background">#ffffffff</color>
+	
+	<drawable name="translucent_background">#e0000000</drawable>
 </resources>

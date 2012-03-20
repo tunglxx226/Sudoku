@@ -18,7 +18,9 @@
      See corresponding Java code com.android.sdk.app.TranslucentBackground.java. -->
 
 <!-- This screen consists of a single text field that displays some text. -->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/text"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/finish_text"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:gravity="center_vertical|center_horizontal"
     android:text="@string/finish_background"/>

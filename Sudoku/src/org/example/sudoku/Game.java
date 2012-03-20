@@ -288,11 +288,11 @@ public class Game extends Activity
 		return false;
 	}
 	
-	protected void callCongratScreen()
+	protected void callFinishScreen()
 	{
 		Intent intent = new Intent(Game.this, FinishScreenNewVer.class);
 		startActivity(intent);
-		finish();
+		//finish();
 	}
 	
 	protected void onResume()
