@@ -58,6 +58,7 @@ public class PuzzleView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		/** Nếu không continue được thì hiện thông báo**/
+		/*
 		if (game.isFinish())
 		{
 			Paint background = new Paint();
@@ -72,7 +73,7 @@ public class PuzzleView extends View
 			canvas.drawText("NO GAME TO CONTINUE...", x, y, blank);
 			
 			return;
-		}
+		}*/
 		
 		//----------------------------------------------------------------------------------
 		//Draw the background
@@ -266,7 +267,8 @@ public class PuzzleView extends View
 			//--chuc nang: hien ra congratulation screen cuoi cung.
 			if (game.isFinish())
 			{
-				game.callCongratScreen();
+				game.callFinishScreen();
+				//game.finish();
 			}
 		}
 		else

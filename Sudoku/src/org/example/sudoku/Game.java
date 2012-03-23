@@ -16,6 +16,9 @@ public class Game extends Activity
 	public static final int DIFFICULTY_MEDIUM = 1;
 	public static final int DIFFICULTY_HARD = 2;
 	public static final int DIFFICULTY_CONTINUE = -1;
+	
+	
+	
 	private static final String key = "puzzle";
 	
 	private final String easyPuzzle =
@@ -202,6 +205,7 @@ public class Game extends Activity
 		}
 		return fromPuzzleString(puz);
 	}
+	
 	static private String toPuzzleString(int[] puz)
 	{
 		StringBuilder buf = new StringBuilder();
@@ -211,6 +215,7 @@ public class Game extends Activity
 		}
 		return buf.toString();
 	}
+
 	static protected int[] fromPuzzleString(String string)
 	{
 		int[] puz = new int[string.length()];
@@ -220,6 +225,7 @@ public class Game extends Activity
 		}
 		return puz;
 	}
+
 	private int getTile(int x, int y)
 	{
 		return puzzle[y*9 + x];
@@ -285,10 +291,15 @@ public class Game extends Activity
 		return false;
 	}
 	
-	protected void callCongratScreen()
+	protected void callFinishScreen()
 	{
-		Intent intent = new Intent(Game.this, CongratScreen.class);
+		Intent intent = new Intent(Game.this, FinishScreenNewVer.class);
 		startActivity(intent);
+		//finish();
+	}
+	
+	protected void finishGame()
+	{
 		finish();
 	}
 	
