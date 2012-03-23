@@ -268,6 +268,7 @@ public class PuzzleView extends View
 			if (game.isFinish())
 			{
 				game.callFinishScreen();
+				//game.finish();
 			}
 		}
 		else

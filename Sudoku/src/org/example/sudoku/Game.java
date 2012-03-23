@@ -16,6 +16,9 @@ public class Game extends Activity
 	public static final int DIFFICULTY_MEDIUM = 1;
 	public static final int DIFFICULTY_HARD = 2;
 	public static final int DIFFICULTY_CONTINUE = -1;
+	
+	
+	
 	private static final String key = "puzzle";
 	
 	private final String easyPuzzle =
@@ -293,6 +296,11 @@ public class Game extends Activity
 		Intent intent = new Intent(Game.this, FinishScreenNewVer.class);
 		startActivity(intent);
 		//finish();
+	}
+	
+	protected void finishGame()
+	{
+		finish();
 	}
 	
 	protected void onResume()
