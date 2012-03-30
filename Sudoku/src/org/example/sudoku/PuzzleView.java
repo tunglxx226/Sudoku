@@ -22,11 +22,15 @@ public class PuzzleView extends View
 	private static final String SELY = "selY" ;
 	private static final String VIEW_STATE = "viewState" ;
 	private static final int ID = 42;
+	private float startingNumTop;
+	//private float startingNumLeft = 0.5f * getWidth() / 9f;
 	
 	public PuzzleView(Context context)
 	{
 		super(context);
 		this.game = (Game) context;
+		//startingNumTop = 0.0625f * getHeight();
+		//startingNumLeft = 0.5f * getWidth() / 9f;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		setId(ID);
@@ -43,56 +47,28 @@ public class PuzzleView extends View
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
 		width = w/9f;
-		height = h/9f;
+		height = (480f / 800f) * h / 9f;
 		getRect(selX, selY, selRect);
 		Log.d(TAG, "onSizeChanged: width " + width + ", height " + height);
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 	private void getRect(int x, int y, Rect rect)
 	{
-		rect.set((int) (x*width), (int) (y*height),(int) (x*width + width),
-				(int) (y*height + height));
+		startingNumTop = 0.0625f * getHeight();
+		rect.set((int) (x*width), (int) (startingNumTop + y*height),(int) (x*width + width),
+				(int) (startingNumTop + y*height + height));
 	}
 	
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
+		
+		
 		//----------------------------------------------------------------------------------
 		//Draw the background
-		Paint background = new Paint();
-		background.setColor(getResources().getColor(R.color.puzzle_background));
-		canvas.drawRect(0, 0, getWidth(), getHeight(), background);
+		this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background2));
 		
-		//Draw the board
-		//Define colors for the grid lines 
-		Paint dark = new Paint();
-		dark.setColor(getResources().getColor(R.color.puzzle_dark));
 		
-		Paint hilite = new Paint();
-		hilite.setColor(getResources().getColor(R.color.puzzle_hilite));
-		
-		Paint light = new Paint();
-		light.setColor(getResources().getColor(R.color.puzzle_light));
-		//Draw the minor grid lines
-		for (int i = 0; i < 9; i++)
-		{
-			canvas.drawLine(0, i*height, getWidth(), i*height, light);
-			canvas.drawLine(0, i*height + 1, getWidth(), i*height + 1, hilite);
-			canvas.drawLine(i*width, 0, i*width, getHeight(), light);
-			canvas.drawLine(i*width + 1, 0, i*width + 1, getHeight(), hilite);
-		}
-		//Draw the major grid lines
-		for (int i = 0; i < 9; i++)
-		{
-			if (i%3 != 0)
-			{
-				continue;
-			}
-			canvas.drawLine(0, i*height, getWidth(), i*height, dark);
-			canvas.drawLine(0, i*height + 1, getWidth(), i*height + 1, hilite);
-			canvas.drawLine(i*width, 0, i*width, getHeight(), dark);
-			canvas.drawLine(i*width + 1, 0, i*width + 1, getHeight(), hilite);
-		}
 		//Draw the numbers
 		//Define color and style for numbers
 		Paint foreground = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -107,11 +83,13 @@ public class PuzzleView extends View
 		float x = width/2;
 		//centering in Y: measure ascent/descent first
 		float y = height/2 - (fm.ascent + fm.descent)/2;
+		
+		startingNumTop = 0.0625f * getHeight();
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				canvas.drawText(this.game.getTileString(i,j), i * width + x, j * height + y, foreground);
+				canvas.drawText(this.game.getTileString(i,j), (i * width + x), (startingNumTop + j * height + y), foreground);
 			}
 		}
 		//Draw the hints
@@ -142,6 +120,16 @@ public class PuzzleView extends View
 			selected.setColor(getResources().getColor(R.color.puzzle_selected));
 			canvas.drawRect(selRect, selected);
 		}
+		
+		// Time comsumed
+		Paint foregroundTime = new Paint(Paint.ANTI_ALIAS_FLAG);
+		foregroundTime.setColor(getResources().getColor(R.color.puzzle_foreground));
+		foregroundTime.setStyle(Style.FILL);
+		foregroundTime.setTextSize(height);
+		foregroundTime.setTextScaleX(width/height);
+		foregroundTime.setTextAlign(Paint.Align.CENTER);
+		canvas.drawText(game.getElapsedTime(), getWidth()/2f, (startingNumTop + height * 11), foregroundTime);
+		
 	}
 	@Override
 	//Handling input
@@ -222,9 +210,12 @@ public class PuzzleView extends View
 		//----chuc nang: khong cho phep sua cac o da co san trong de bai-----------
 		int[][] usedIndex = new int[81][2];
 		usedIndex = game.getUsedIndex();
+		startingNumTop = 0.0625f * getHeight();
 		for (int i = 0; i < usedIndex.length; i++)
 		{
-			if ((int) (event.getX() / width) == usedIndex[i][0] && (int) (event.getY() / height) == usedIndex[i][1])
+			if (((int) (event.getX() / width) == usedIndex[i][0] && (int) ((event.getY() - startingNumTop) / height) == usedIndex[i][1]) 
+					|| ((int) (event.getY()) > startingNumTop + ((480f / 800f) * getHeight()))
+					|| ((int) (event.getY()) < startingNumTop))
 			{
 				//o co san trong de bai
 				//tra ve true ket thuc ham
@@ -232,7 +223,7 @@ public class PuzzleView extends View
 			}
 		}
 		//-------------------------------------------------------------------------
-		select((int)(event.getX()/width), (int)(event.getY()/height));
+		select((int)(event.getX()/width), (int)((event.getY() - startingNumTop)/height));
 		game.showKeypadOrError(selX,selY);
 		Log.d(TAG, "onTouchEvent: x " + selX + ", y " + selY);
 
@@ -241,8 +232,7 @@ public class PuzzleView extends View
 	
 	public void setSelectedTile(int tile)
 	{
-		
-		if (game.setTileIfValid(selX,selY,tile))
+		if (game.setTileIfValid(selX, selY,tile))
 		{
 			invalidate();//may change hints
 			//--Ma nguon them boi tunglx-----------------------
@@ -250,6 +240,7 @@ public class PuzzleView extends View
 			if (game.isFinish())
 			{
 				game.callFinishScreen();
+				//game.finish();
 			}
 		}
 		else
@@ -281,5 +272,4 @@ public class PuzzleView extends View
 		super.onRestoreInstanceState(bundle.getParcelable(VIEW_STATE));
 		return;
 	 }
-	
 }
