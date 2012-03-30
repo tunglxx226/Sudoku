@@ -20,7 +20,7 @@ public class Game extends Activity
 	public static final int DIFFICULTY_CONTINUE = -1;
 	
 	// Continue or not
-	public static boolean cont = true;
+	public static boolean cont = false;
 	
 	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the 
 	
@@ -47,7 +47,7 @@ public class Game extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-		cont = true;
+		cont = false;
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null)
 		{
@@ -65,18 +65,19 @@ public class Game extends Activity
 		calculateUsedTilesIndex(question);
 		//-------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
-		/*if (!isFinish())
-		{*/
+		if (!isFinish())
+		{
 			puzzleView = new PuzzleView(this);
 			setContentView(puzzleView);
+			cont = true;
 			puzzleView.requestFocus();
-		/*}
+		}
 		// If game is finished, set cont to false and finish the game
 		else 
 		{
 			cont = false;
 			Game.this.finish();
-		}*/
+		}
 	}
 	// ...
 	public void showKeypadOrError(int x, int y)

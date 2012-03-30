@@ -48,10 +48,12 @@ public class Sudoku extends Activity implements OnClickListener{
 	    			break;
 	    	case R.id.continue_button:
 	    		// If game is continuable (Game.cont == true) then continue game as normal
-	    		//if(Game.cont == true)
+	    		if(Game.cont == true)
+	    		{
 	    			startGame(Game.DIFFICULTY_CONTINUE);
+	    		}	    			
 	    		// else: display a message
-	    		//else Sudoku.this.noGameToCont();
+	    		else Sudoku.this.noGameToCont();
 	    			break;
 	    	// More buttons go here (if any) ...
     	}
