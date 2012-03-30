@@ -42,15 +42,6 @@
 			android:configChanges="locale"
 			android:screenOrientation="portrait">
 		</activity>
-		
-		<activity android:name=".FinishScreenNewVer"
-                android:label="@string/activity_translucent"
-                android:theme="@style/Theme.Translucent">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

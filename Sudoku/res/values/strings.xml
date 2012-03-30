@@ -42,8 +42,5 @@
 	<string name="exit_no_label">No</string>
 	<string name="replay_label">Replay</string>
 	<string name="menu_label">Main menu</string>
-	
-	<string name="activity_translucent">App/Activity/Translucent</string>
-	<string name="finish_background">This is a test for finish screen</string>
 
 </resources>
