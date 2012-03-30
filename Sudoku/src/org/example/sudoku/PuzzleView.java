@@ -57,24 +57,6 @@ public class PuzzleView extends View
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		/** Nếu không continue được thì hiện thông báo**/
-		/*
-		if (game.isFinish())
-		{
-			Paint background = new Paint();
-			background.setColor(getResources().getColor(R.color.blank_background));
-			canvas.drawRect(0, 0, getWidth(), getHeight(), background);
-			Paint blank = new Paint();
-			blank.setTextSize(height * 0.5f);
-			blank.setTextScaleX(getWidth() / getHeight());
-			blank.setColor(getResources().getColor(R.color.blank_black));
-			float x = getWidth() / 5; // So 5 lay random de hop layout
-			float y = getHeight() / 2; // So 2 lay random de hop layout 
-			canvas.drawText("NO GAME TO CONTINUE...", x, y, blank);
-			
-			return;
-		}*/
-		
 		//----------------------------------------------------------------------------------
 		//Draw the background
 		Paint background = new Paint();
@@ -268,7 +250,6 @@ public class PuzzleView extends View
 			if (game.isFinish())
 			{
 				game.callFinishScreen();
-				//game.finish();
 			}
 		}
 		else

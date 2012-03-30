@@ -19,10 +19,12 @@ public class Game extends Activity
 	public static final int DIFFICULTY_HARD = 2;
 	public static final int DIFFICULTY_CONTINUE = -1;
 	
+	// Continue or not
+	public static boolean cont = true;
 	
+	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the 
 	
 	private static final String key = "puzzle";
-	
 	private final String easyPuzzle =
 			"362581479914237856785694231" +
 			"170462583823759614546813927" +
@@ -45,15 +47,16 @@ public class Game extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-		
+		cont = true;
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null)
 		{
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 		}
 		else
+		{
 			puzzle = getPuzzle(diff);
-		
+		}
 		calculateUsedTiles();		
 		
 		//defines tile that was already filled by the game
@@ -61,10 +64,19 @@ public class Game extends Activity
 		//----chuc nang: khong cho phep sua cac o da co san trong de bai-----------
 		calculateUsedTilesIndex(question);
 		//-------------------------------------------------------------------------
-		
-		puzzleView = new PuzzleView(this);
-		setContentView(puzzleView);
-		puzzleView.requestFocus();
+		// If game is not finished then continue loading puzzleView
+		/*if (!isFinish())
+		{*/
+			puzzleView = new PuzzleView(this);
+			setContentView(puzzleView);
+			puzzleView.requestFocus();
+		/*}
+		// If game is finished, set cont to false and finish the game
+		else 
+		{
+			cont = false;
+			Game.this.finish();
+		}*/
 	}
 	// ...
 	public void showKeypadOrError(int x, int y)
@@ -295,20 +307,22 @@ public class Game extends Activity
 	
 	protected void callFinishScreen()
 	{
+		cont = false;
 		confirmExit();
 	}
 	
 	protected void finishGame()
 	{
+		cont = false;
 		finish();
 	}
 	
 	protected void onResume()
     {
-    	super.onResume();
-    	Log.d(TAG, "onResume");
-    	Music.play(this, R.raw.game);
-    }
+		super.onResume();
+		Log.d(TAG, "onResume");
+		Music.play(this, R.raw.game);
+	}
     
     protected void onPause()
     {
