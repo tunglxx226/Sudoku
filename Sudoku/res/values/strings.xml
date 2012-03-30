@@ -43,7 +43,7 @@
 	<string name="replay_label">Replay</string>
 	<string name="menu_label">Main menu</string>
 	
-	<string name="activity_translucent">App/Activity/Translucent</string>
-	<string name="finish_background">This is a test for finish screen</string>
+	<string name="no_game_cont">No game to continue</string>
+	<string name="back_label">Back</string>
 
 </resources>

@@ -47,7 +47,13 @@ public class Sudoku extends Activity implements OnClickListener{
 	    			confirmExit();
 	    			break;
 	    	case R.id.continue_button:
+	    		// If game is continuable (Game.cont == true) then continue game as normal
+	    		if(Game.cont == true)
+	    		{
 	    			startGame(Game.DIFFICULTY_CONTINUE);
+	    		}	    			
+	    		// else: display a message
+	    		else Sudoku.this.noGameToCont();
 	    			break;
 	    	// More buttons go here (if any) ...
     	}
@@ -132,5 +138,21 @@ public class Sudoku extends Activity implements OnClickListener{
     {
     	super.onPause();
     	Music.stop(this);
+    }
+    protected void noGameToCont()
+    {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setMessage(R.string.no_game_cont)
+    		   .setCancelable(false)
+			   .setNegativeButton(R.string.back_label, new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface dialog, int id) {
+					// TODO Auto-generated method stub
+					dialog.cancel();
+					
+				}
+			});
+    	builder.create();
+    	builder.show();
     }
 }
