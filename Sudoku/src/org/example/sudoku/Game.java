@@ -19,6 +19,10 @@ public class Game extends Activity
 	public static final int DIFFICULTY_HARD = 2;
 	public static final int DIFFICULTY_CONTINUE = -1;
 	
+	private StopWatch stopwatch;
+	private static final String keyTime = "time";
+	private long atTime = 0;
+	private Bundle bundle;
 	// Continue or not
 	public static boolean cont = false;
 	
@@ -46,16 +50,21 @@ public class Game extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		bundle = savedInstanceState;
 		Log.d(TAG, "onCreate");
 		cont = false;
+		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null)
 		{
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
+			atTime = bundle.getLong(keyTime);
+			stopwatch.startAt(atTime);
 		}
 		else
 		{
 			puzzle = getPuzzle(diff);
+			stopwatch.start();
 		}
 		calculateUsedTiles();		
 		
@@ -301,6 +310,7 @@ public class Game extends Activity
 		calculateUsedTilesIndex(c);
 		if (usedNum == 81)
 		{
+			stopwatch.stop();
 			return true;
 		}
 		return false;
@@ -309,12 +319,14 @@ public class Game extends Activity
 	protected void callFinishScreen()
 	{
 		cont = false;
+		stopwatch.stop();
 		confirmExit();
 	}
 	
 	protected void finishGame()
 	{
 		cont = false;
+		stopwatch.stop();
 		finish();
 	}
 	
@@ -323,6 +335,12 @@ public class Game extends Activity
 		super.onResume();
 		Log.d(TAG, "onResume");
 		Music.play(this, R.raw.game);
+		atTime = 0;
+		if (bundle != null)
+		{
+			atTime = bundle.getLong(keyTime);
+		}
+		stopwatch.startAt(atTime);
 	}
     
     protected void onPause()
@@ -330,12 +348,16 @@ public class Game extends Activity
     	super.onPause();
     	Log.d(TAG, "onPause");
     	Music.stop(this);
+    	stopwatch.stop();
     	getPreferences(MODE_PRIVATE).edit().putString(key, toPuzzleString(puzzle)).commit();
+    	getPreferences(MODE_PRIVATE).edit().putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
     }
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
+    	stopwatch.stop();
     	outState.putString(key, toPuzzleString(puzzle));
+    	outState.putLong(keyTime, stopwatch.getElapsedTime());
     	super.onSaveInstanceState(outState);
     }
     
@@ -392,4 +414,15 @@ public class Game extends Activity
     	startActivity(intent);
     }
     //-----------------------------------------------------------------------
+    public String getElapsedTime() 
+    {
+    	long temp = stopwatch.getElapsedTimeSecs();
+    	int hour = (int) Math.floor(temp / 3600);
+    	
+    	int minute = (int) Math.floor((temp - (3600 * hour))/60);
+    	
+    	int second = (int) (temp - minute * 60 - hour * 3600); 
+        return hour + ":" + minute + ":" + second;
+    }
+    
 }
