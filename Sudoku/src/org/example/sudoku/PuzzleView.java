@@ -69,36 +69,7 @@ public class PuzzleView extends View
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		//Draw the board
-		//Define colors for the grid lines 
-		Paint dark = new Paint();
-		dark.setColor(getResources().getColor(R.color.puzzle_dark));
-
-		Paint hilite = new Paint();
-		hilite.setColor(getResources().getColor(R.color.puzzle_hilite));
-
-		Paint light = new Paint();
-		light.setColor(getResources().getColor(R.color.puzzle_light));
-		//Draw the minor grid lines
-		for (int i = 0; i < 9; i++)
-		{
-			canvas.drawLine(0, i*height, getWidth(), i*height, light);
-			canvas.drawLine(0, i*height + 1, getWidth(), i*height + 1, hilite);
-			canvas.drawLine(i*width, 0, i*width, getHeight(), light);
-			canvas.drawLine(i*width + 1, 0, i*width + 1, getHeight(), hilite);
-		}
-		//Draw the major grid lines
-		for (int i = 0; i < 9; i++)
-		{
-			if (i%3 != 0)
-			{
-				continue;
-			}
-			canvas.drawLine(0, i*height, getWidth(), i*height, dark);
-			canvas.drawLine(0, i*height + 1, getWidth(), i*height + 1, hilite);
-			canvas.drawLine(i*width, 0, i*width, getHeight(), dark);
-			canvas.drawLine(i*width + 1, 0, i*width + 1, getHeight(), hilite);
-		}
+		
 		//Draw the numbers
 		//Define color and style for numbers
 		Paint foreground = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -252,8 +223,6 @@ public class PuzzleView extends View
 		{
 			invalidate();//may change hints
 			//--Ma nguon them boi tunglx-----------------------
-			//--chuc nang: hien ra congratulation screen cuoi cung.
-			
 		}
 		else
 		{
