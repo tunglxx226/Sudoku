@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class Game extends Activity
@@ -50,6 +54,8 @@ public class Game extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		bundle = savedInstanceState;
 		Log.d(TAG, "onCreate");
 		cont = false;
@@ -76,10 +82,15 @@ public class Game extends Activity
 		// If game is not finished then continue loading puzzleView
 		if (!isFinish())
 		{
-			puzzleView = new PuzzleView(this);
-			setContentView(puzzleView);
+			
+			setContentView(R.layout.gameview);
+			View v = getLayoutInflater().inflate(R.layout.gameview, null);
+			puzzleView = (PuzzleView) v.findViewById(R.id.puzzleId);
+			//ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -1);
+			//puzzleView.setLayoutParams(params);
 			cont = true;
-			puzzleView.requestFocus();
+			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
+			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
 		}
 		// If game is finished, set cont to false and finish the game
 		else 
