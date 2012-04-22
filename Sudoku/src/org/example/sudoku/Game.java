@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 public class Game extends Activity
 {
-	private static final String TAG = "Sudoku";
+	private static final String TAG = "Game.java";
 	public static final String KEY_DIFFICULTY = "org.example.sudoku.difficulty";
 	public static final int DIFFICULTY_EASY = 0;
 	public static final int DIFFICULTY_MEDIUM = 1;
@@ -48,7 +48,7 @@ public class Game extends Activity
 	
 	private int puzzle[] = new int[9*9];
 	
-	private PuzzleView puzzleView;
+	public PuzzleView puzzleView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -56,8 +56,15 @@ public class Game extends Activity
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
 		bundle = savedInstanceState;
+		//initialize puzzleView
+		puzzleView = new PuzzleView(this);
+		puzzleView.setFocusableInTouchMode(true);
+		puzzleView.setFocusable(true);
+		
 		Log.d(TAG, "onCreate");
+		
 		cont = false;
 		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
@@ -85,9 +92,11 @@ public class Game extends Activity
 			
 			setContentView(R.layout.gameview);
 			View v = getLayoutInflater().inflate(R.layout.gameview, null);
-			puzzleView = (PuzzleView) v.findViewById(R.id.puzzleId);
-			//ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -1);
-			//puzzleView.setLayoutParams(params);
+//			puzzleView = (PuzzleView) v.findViewById(R.id.puzzleId);
+			if (puzzleView == null)
+			{
+				Log.e(TAG, "onCreate: puzzleView is NULL");
+			}
 			cont = true;
 			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
 			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
@@ -99,6 +108,7 @@ public class Game extends Activity
 			Game.this.finish();
 		}
 	}
+	
 	// ...
 	public void showKeypadOrError(int x, int y)
 	{
@@ -111,13 +121,16 @@ public class Game extends Activity
 		}else
 		{
 			Log.d(TAG, "showKeypad: used=" + toPuzzleString(tiles));
-			Dialog v = new Keypad(this, tiles, puzzleView);
+			Dialog v = new Keypad(this, this.puzzleView, x, y);
 			v.show();
+			puzzleView.requestFocus();
+			puzzleView.postInvalidate();
 		}
 	}
 	
 	public boolean setTileIfValid(int x, int y, int value)
 	{
+		Log.i(TAG, "setTileIfValid: stepping on");
 		int tiles[] = getUsedTiles(x,y);
 		if (value != 0)
 		{
@@ -125,6 +138,7 @@ public class Game extends Activity
 			{
 				if (tile == value)
 				{
+					Log.e(TAG, "setTileIfValid: failed on setTile, tile = " + tile + " value = " + value);
 					return false;
 				}
 			}
@@ -265,7 +279,7 @@ public class Game extends Activity
 	{
 		return puzzle[y*9 + x];
 	}
-	private void setTile(int x, int y, int value)
+	public void setTile(int x, int y, int value)
 	{
 		puzzle[y*9 + x] = value;
 	}

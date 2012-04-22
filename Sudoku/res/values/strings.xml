@@ -35,7 +35,7 @@
 	
 	<string name="game_title">Game</string>
 	<string name="no_moves_label">No moves</string>
-	<string name="keypad_title">Keypad</string>
+	<string name="keypad_title">Choose the number</string>
 	
 	<string name="confirm_exit">Are you sure want to exit?</string>
 	<string name="exit_yes_label">Yes</string>
