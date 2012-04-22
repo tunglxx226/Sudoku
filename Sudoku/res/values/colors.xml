@@ -9,7 +9,7 @@
 	<color name="puzzle_hint_0">#64ff0000</color>
 	<color name="puzzle_hint_1">#6400ff80</color>
 	<color name="puzzle_hint_2">#2000ff80</color>
-	<color name="puzzle_selected">#64ff8000</color>
+	<color name="puzzle_selected">#640000ff</color>
 	<color name="blank_black">#6456648f</color>
 	<color name="blank_background">#ffffffff</color>
 </resources>

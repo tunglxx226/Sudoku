@@ -3,24 +3,27 @@ package org.example.sudoku;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
 public class Keypad extends Dialog
 {
-	protected static final String TAG="Sudoku";
+	protected static final String TAG="Keypad";
 	
 	private final View keys[] = new View[9];
-	private View keypad;
 	
-	private final int useds[];
 	private final PuzzleView puzzleView;
 	
-	public Keypad(Context context, int useds[], PuzzleView puzzleView)
+	private int selX;
+	private int selY;
+	
+	public Keypad(Context context, PuzzleView v, int x, int y)
 	{
 		super(context);
-		this.useds = useds;
-		this.puzzleView = puzzleView;
+		this.puzzleView = v;
+		selX = x;
+		selY = y;
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -30,19 +33,11 @@ public class Keypad extends Dialog
 		setTitle(R.string.keypad_title);
 		setContentView(R.layout.keypad);
 		findViews();
-		for (int element : useds)
-		{
-			if (element != 0)
-			{
-				keys[element - 1].setVisibility(View.INVISIBLE);
-			}
-		}
 		setListeners();
 	}
 	//....
 	private void findViews()
 	{
-		keypad = findViewById(R.id.keypad);
 		keys[0] = findViewById(R.id.keypad_1);
 		keys[1] = findViewById(R.id.keypad_2);
 		keys[2] = findViewById(R.id.keypad_3);
@@ -62,18 +57,10 @@ public class Keypad extends Dialog
 			keys[i].setOnClickListener(new View.OnClickListener() {	
 				public void onClick(View v) 
 				{
-					// TODO Auto-generated method stub
 					returnResult(t);
 				}
 			});
 		}
-		keypad.setOnClickListener(new View.OnClickListener() {
-			
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				returnResult(0);
-			}
-		});
 	}
 	
 	@Override
@@ -82,10 +69,6 @@ public class Keypad extends Dialog
 		int tile = 0;
 		switch (keyCode)
 		{
-			case KeyEvent.KEYCODE_0:
-			case KeyEvent.KEYCODE_SPACE:
-				tile = 0;
-				break;
 			case KeyEvent.KEYCODE_1:
 				tile = 1;
 				break;
@@ -111,26 +94,13 @@ public class Keypad extends Dialog
 			default:
 				return super.onKeyDown(keyCode, event);
 		}
-		if (isValid(tile))
-		{
-			returnResult(tile);
-		}
+		returnResult(tile);
 		return true;
 	}
-	private boolean isValid(int tile)
-	{
-		for (int t : useds)
-		{
-			if (tile == t)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+
 	private void returnResult(int tile)
-	{
-		puzzleView.setSelectedTile(tile);
+	{	
+		puzzleView.setSelectedTile(selX, selY, tile);
 		dismiss();
 	}
 }
