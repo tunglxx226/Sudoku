@@ -124,7 +124,7 @@ public class PuzzleView extends View {
 		Paint selected = new Paint();
 		selected.setColor(getResources().getColor(R.color.puzzle_selected));
 		canvas.drawRect(selRect, selected);
-		
+
 		this.invalidate();
 	}
 
@@ -195,6 +195,21 @@ public class PuzzleView extends View {
 		invalidate(selRect);
 	}
 
+	// Get the coordinate of the selected tile
+	private int[] selectCordinate(int x, int y) {
+		invalidate(selRect);
+		int[] cordinate = new int[2];
+		selX = Math.min(Math.max(x, 0), 8);
+		selY = Math.min(Math.max(y, 0), 8);
+
+		cordinate[0] = selX;
+		cordinate[1] = selY;
+
+		getRect(selX, selY, selRect);
+		invalidate(selRect);
+		return cordinate;
+	}
+
 	// Handle input in touch mode
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -202,26 +217,20 @@ public class PuzzleView extends View {
 			return super.onTouchEvent(event);
 		}
 
-		// --ma nguon them boi
-		// Tunglx-----------------------------------------------
-		// ----chuc nang: khong cho phep sua cac o da co san trong de
-		// bai-----------
-		int[][] usedIndex = new int[81][2];
-		usedIndex = game.getUsedIndex();
-		for (int i = 0; i < usedIndex.length; i++) {
-			if ((int) (event.getX() / width) == usedIndex[i][0]
-					&& (int) (event.getY() / height) == usedIndex[i][1]) {
-				// o co san trong de bai
-				// tra ve true ket thuc ham
-				return true;
-			}
-		}
-		// -------------------------------------------------------------------------
-		select((int) (event.getX() / width), (int) (event.getY() / height));
+		// Allow player to choose the tile that defined by game
+		// But only allow the user to modify the tiles that are blank
+		int[] selected = new int[2];
+		selected = selectCordinate((int) (event.getX() / width),
+				(int) (event.getY() / height));
 
+		int[] predefined = new int[81];
+		// Get the tile that are not blank (predefined by game)
+		predefined = game.getPredefinedTileFromPuzzle();
+		// Check if the selected tile is whether predefined or not
+		if (predefined[selected[1] * 9 + selected[0]] == 1) {
+			return true;
+		}
 		game.showKeypadOrError(selX, selY);
-		Log.d(TAG, "onTouchEvent: x " + selX + ", y " + selY);
-		
 		return true;
 	}
 
