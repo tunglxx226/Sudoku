@@ -123,8 +123,6 @@ public class Game extends Activity
 			Log.d(TAG, "showKeypad: used=" + toPuzzleString(tiles));
 			Dialog v = new Keypad(this, this.puzzleView, x, y);
 			v.show();
-			puzzleView.requestFocus();
-			puzzleView.postInvalidate();
 		}
 	}
 	

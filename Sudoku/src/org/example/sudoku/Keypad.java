@@ -100,7 +100,6 @@ public class Keypad extends Dialog
 
 	private void returnResult(int tile)
 	{	
-		puzzleView.requestFocus();
 		puzzleView.setSelectedTile(selX, selY, tile);
 		dismiss();
 	}

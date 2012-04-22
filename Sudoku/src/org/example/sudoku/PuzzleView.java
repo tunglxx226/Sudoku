@@ -10,12 +10,9 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 public class PuzzleView extends View {
 	private static final String TAG = "Sudoku";
@@ -127,6 +124,8 @@ public class PuzzleView extends View {
 		Paint selected = new Paint();
 		selected.setColor(getResources().getColor(R.color.puzzle_selected));
 		canvas.drawRect(selRect, selected);
+		
+		this.invalidate();
 	}
 
 	@Override
@@ -147,41 +146,41 @@ public class PuzzleView extends View {
 			select(selX + 1, selY);
 			break;
 		// handle keyboard input
-//		case KeyEvent.KEYCODE_0:
-//		case KeyEvent.KEYCODE_SPACE:
-//			setSelectedTile(0);
-//			break;
-//		case KeyEvent.KEYCODE_1:
-//			setSelectedTile(1);
-//			break;
-//		case KeyEvent.KEYCODE_2:
-//			setSelectedTile(2);
-//			break;
-//		case KeyEvent.KEYCODE_3:
-//			setSelectedTile(3);
-//			break;
-//		case KeyEvent.KEYCODE_4:
-//			setSelectedTile(4);
-//			break;
-//		case KeyEvent.KEYCODE_5:
-//			setSelectedTile(5);
-//			break;
-//		case KeyEvent.KEYCODE_6:
-//			setSelectedTile(6);
-//			break;
-//		case KeyEvent.KEYCODE_7:
-//			setSelectedTile(7);
-//			break;
-//		case KeyEvent.KEYCODE_8:
-//			setSelectedTile(8);
-//			break;
-//		case KeyEvent.KEYCODE_9:
-//			setSelectedTile(9);
-//			break;
-//		case KeyEvent.KEYCODE_ENTER:
-//		case KeyEvent.KEYCODE_DPAD_CENTER:
-//			game.showKeypadOrError(selX, selY);
-//			break;
+		// case KeyEvent.KEYCODE_0:
+		// case KeyEvent.KEYCODE_SPACE:
+		// setSelectedTile(0);
+		// break;
+		// case KeyEvent.KEYCODE_1:
+		// setSelectedTile(1);
+		// break;
+		// case KeyEvent.KEYCODE_2:
+		// setSelectedTile(2);
+		// break;
+		// case KeyEvent.KEYCODE_3:
+		// setSelectedTile(3);
+		// break;
+		// case KeyEvent.KEYCODE_4:
+		// setSelectedTile(4);
+		// break;
+		// case KeyEvent.KEYCODE_5:
+		// setSelectedTile(5);
+		// break;
+		// case KeyEvent.KEYCODE_6:
+		// setSelectedTile(6);
+		// break;
+		// case KeyEvent.KEYCODE_7:
+		// setSelectedTile(7);
+		// break;
+		// case KeyEvent.KEYCODE_8:
+		// setSelectedTile(8);
+		// break;
+		// case KeyEvent.KEYCODE_9:
+		// setSelectedTile(9);
+		// break;
+		// case KeyEvent.KEYCODE_ENTER:
+		// case KeyEvent.KEYCODE_DPAD_CENTER:
+		// game.showKeypadOrError(selX, selY);
+		// break;
 		default:
 			return super.onKeyDown(keyCode, event);
 		}
@@ -222,14 +221,13 @@ public class PuzzleView extends View {
 
 		game.showKeypadOrError(selX, selY);
 		Log.d(TAG, "onTouchEvent: x " + selX + ", y " + selY);
-
+		
 		return true;
 	}
 
 	public void setSelectedTile(int X, int Y, int tile) {
 		game.setTile(X, Y, tile);
-		//any futher code handling invalid input number goes here
-		this.invalidate();
+		// any further code handling invalid input number goes here
 	}
 
 	@Override
