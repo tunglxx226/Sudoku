@@ -21,6 +21,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".VideoviewActivity"
+            android:screenOrientation="landscape">
+        </activity>
+        <activity
             android:name=".About"
             android:label="@string/about_title"
             android:theme="@android:style/Theme.Dialog"
