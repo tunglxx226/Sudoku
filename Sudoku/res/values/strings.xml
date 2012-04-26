@@ -7,6 +7,7 @@
 	<string name="new_game_label">New Game</string>
 	<string name="about_label">About</string>
 	<string name="exit_label">Exit</string>
+	<string name="story_label">Story Mode</string>
 	<string name="congratscreen_title">Congratulation</string>
 	
 	<string name="about_title">About Android Sudoku</string>

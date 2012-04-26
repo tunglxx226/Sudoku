@@ -33,6 +33,11 @@ public class Game extends Activity {
 	private Bundle bundle;
 	// Continue or not
 	public static boolean cont = false;
+	
+	//Game profile statistic
+	private int level;
+	private String introVideoPath;
+	public static boolean storymode = false;
 
 	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the
 
@@ -98,6 +103,26 @@ public class Game extends Activity {
 			cont = false;
 			Game.this.finish();
 		}
+	}
+	// Get or set level and intro movies
+	public int getLevel()
+	{
+		return level;
+	}
+	
+	public String getIntro()
+	{
+		return introVideoPath;
+	}
+	
+	public void setLevel(int newLevel)
+	{
+		level = newLevel;
+	}
+	
+	public void setIntro(String videoPath)
+	{
+		introVideoPath = videoPath;
 	}
 
 	// ...
