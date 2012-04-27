@@ -20,20 +20,22 @@ public class PuzzleView extends View {
 	private static final String SELX = "selX";
 	private static final String SELY = "selY";
 	private static final String VIEW_STATE = "viewState";
-	private static final int ID = 42;
+	//private static final int ID = 42;
 
 	public PuzzleView(Context context) {
 		super(context);
 		this.game = (Game) context;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		setId(ID);
+		//setId(ID);
+		
 	}
 
 	public PuzzleView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		
 	}
 
 	public PuzzleView(Context context, AttributeSet attrs, int defStyle) {
@@ -41,7 +43,8 @@ public class PuzzleView extends View {
 		this.game = (Game) context;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		setId(ID);
+		//setId(ID);
+		
 		// real work here
 	}
 
@@ -91,41 +94,12 @@ public class PuzzleView extends View {
 						* height + y, foreground);
 			}
 		}
-
-		/**
-		 * 
-		 * Here I think we should omit hints from this kind of game.
-		 */
-		// Draw the hints
-		// if (Prefs.getHints(getContext()))
-		// {
-		// Pick a hint color based on #moves left
-		// Paint hint = new Paint();
-		// int c[] = {getResources().getColor(R.color.puzzle_hint_0),
-		// getResources().getColor(R.color.puzzle_hint_1),
-		// getResources().getColor(R.color.puzzle_hint_2),};
-		// Rect r = new Rect();
-		// for (int i = 0; i < 9; i++)
-		// {
-		// for (int j = 0; j < 9; j++)
-		// {
-		// int movesleft = 9 - game.getUsedTiles(i,j).length;
-		// if (movesleft < c.length)
-		// {
-		// getRect(i,j,r);
-		// hint.setColor(c[movesleft]);
-		// canvas.drawRect(r, hint);
-		// }
-		// }
-		// }
-
+		
 		// Draw the selection
 		Log.d(TAG, "selRect=" + selRect);
 		Paint selected = new Paint();
 		selected.setColor(getResources().getColor(R.color.puzzle_selected));
-		canvas.drawRect(selRect, selected);
-
-		this.invalidate();
+		canvas.drawRect(selRect, selected); 
 	}
 
 	@Override
@@ -145,42 +119,7 @@ public class PuzzleView extends View {
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
 			select(selX + 1, selY);
 			break;
-		// handle keyboard input
-		// case KeyEvent.KEYCODE_0:
-		// case KeyEvent.KEYCODE_SPACE:
-		// setSelectedTile(0);
-		// break;
-		// case KeyEvent.KEYCODE_1:
-		// setSelectedTile(1);
-		// break;
-		// case KeyEvent.KEYCODE_2:
-		// setSelectedTile(2);
-		// break;
-		// case KeyEvent.KEYCODE_3:
-		// setSelectedTile(3);
-		// break;
-		// case KeyEvent.KEYCODE_4:
-		// setSelectedTile(4);
-		// break;
-		// case KeyEvent.KEYCODE_5:
-		// setSelectedTile(5);
-		// break;
-		// case KeyEvent.KEYCODE_6:
-		// setSelectedTile(6);
-		// break;
-		// case KeyEvent.KEYCODE_7:
-		// setSelectedTile(7);
-		// break;
-		// case KeyEvent.KEYCODE_8:
-		// setSelectedTile(8);
-		// break;
-		// case KeyEvent.KEYCODE_9:
-		// setSelectedTile(9);
-		// break;
-		// case KeyEvent.KEYCODE_ENTER:
-		// case KeyEvent.KEYCODE_DPAD_CENTER:
-		// game.showKeypadOrError(selX, selY);
-		// break;
+		
 		default:
 			return super.onKeyDown(keyCode, event);
 		}
@@ -236,6 +175,7 @@ public class PuzzleView extends View {
 
 	public void setSelectedTile(int X, int Y, int tile) {
 		game.setTile(X, Y, tile);
+		invalidate();
 		// any further code handling invalid input number goes here
 	}
 
