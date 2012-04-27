@@ -62,10 +62,10 @@ public class Game extends Activity {
 
 		bundle = savedInstanceState;
 		// initialize puzzleView
-		puzzleView = new PuzzleView(this);
+		/*puzzleView = new PuzzleView(this);
 		puzzleView.setFocusableInTouchMode(true);
-		puzzleView.setFocusable(true);
-
+		puzzleView.setFocusable(true);*/
+		
 		Log.d(TAG, "onCreate");
 
 		cont = false;
@@ -90,11 +90,13 @@ public class Game extends Activity {
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
-		if (!isFinish()) {
+		if (!isFinish()) 
+		{
 
 			setContentView(R.layout.gameview);
 			View v = getLayoutInflater().inflate(R.layout.gameview, null);
 			cont = true;
+			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
 			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
 			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
 		}
