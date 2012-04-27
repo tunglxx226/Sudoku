@@ -22,8 +22,6 @@ public class Game extends Activity {
 
 	private static final int BLANK = 0;
 	private static final int DEFINED = 1;
-	// Use to store the predefined tile by game
-	private int[] predefined = new int[81];
 
 	private StopWatch stopwatch;
 	private static final String keyTime = "time";
@@ -31,8 +29,8 @@ public class Game extends Activity {
 	private Bundle bundle;
 	// Continue or not
 	public static boolean cont = false;
-	
-	//Game profile statistic
+
+	// Game profile statistic
 	private int level;
 	private String introVideoPath;
 	public static boolean storymode = false;
@@ -40,6 +38,8 @@ public class Game extends Activity {
 	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the
 
 	private static final String key = "puzzle";
+	private static final String keyPredefined = "predefined";
+
 	private final String easyPuzzle = "362581479914237856785694231"
 			+ "170462583823759614546813927" + "431925768657148392298376140";
 	private final String mediumPuzzle = "650000070000506000014000005"
@@ -48,6 +48,8 @@ public class Game extends Activity {
 			+ "000000700706040102004000000" + "000720903090301080000000600";
 
 	private int puzzle[] = new int[9 * 9];
+	// Use to store the predefined tile by game
+	private int predefined[] = new int[9*9];
 
 	public PuzzleView puzzleView;
 
@@ -60,10 +62,12 @@ public class Game extends Activity {
 
 		bundle = savedInstanceState;
 		// initialize puzzleView
-		/*puzzleView = new PuzzleView(this);
-		puzzleView.setFocusableInTouchMode(true);
-		puzzleView.setFocusable(true);*/
-		
+		/*
+		 * puzzleView = new PuzzleView(this);
+		 * puzzleView.setFocusableInTouchMode(true);
+		 * puzzleView.setFocusable(true);
+		 */
+
 		Log.d(TAG, "onCreate");
 
 		cont = false;
@@ -71,6 +75,7 @@ public class Game extends Activity {
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
+			predefined = fromPuzzleString(savedInstanceState.getString(keyPredefined));
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
 		} else {
@@ -88,15 +93,16 @@ public class Game extends Activity {
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
-		if (!isFinish()) 
-		{
+		if (!isFinish()) {
 
 			setContentView(R.layout.gameview);
-//			View v = getLayoutInflater().inflate(R.layout.gameview, null);
+			// View v = getLayoutInflater().inflate(R.layout.gameview, null);
 			cont = true;
 			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
-//			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
-//			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
+			// LinearLayout mLayout1 = (LinearLayout)
+			// findViewById(R.id.linearlayouttop);
+			// LinearLayout mLayout2 = (LinearLayout)
+			// findViewById(R.id.linearlayoutbottom);
 		}
 		// If game is finished, set cont to false and finish the game
 		else {
@@ -104,24 +110,21 @@ public class Game extends Activity {
 			Game.this.finish();
 		}
 	}
+
 	// Get or set level and intro movies
-	public int getLevel()
-	{
+	public int getLevel() {
 		return level;
 	}
-	
-	public String getIntro()
-	{
+
+	public String getIntro() {
 		return introVideoPath;
 	}
-	
-	public void setLevel(int newLevel)
-	{
+
+	public void setLevel(int newLevel) {
 		level = newLevel;
 	}
-	
-	public void setIntro(String videoPath)
-	{
+
+	public void setIntro(String videoPath) {
 		introVideoPath = videoPath;
 	}
 
@@ -230,19 +233,20 @@ public class Game extends Activity {
 		switch (diff) {
 		case DIFFICULTY_CONTINUE:
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
+			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE).getString(keyPredefined, easyPuzzle));
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
-			getPredefinedTileFromPuzzle(predefined);
+			getPredefinedTileFromPuzzle(puz, predefined);
 			break;
 		case DIFFICULTY_MEDIUM:
 			puz = mediumPuzzle;
-			getPredefinedTileFromPuzzle(predefined);
+			getPredefinedTileFromPuzzle(puz, predefined);
 			break;
 		case DIFFICULTY_EASY:
 		default:
 			puz = easyPuzzle;
-			getPredefinedTileFromPuzzle(predefined);
+			getPredefinedTileFromPuzzle(puz, predefined);
 			break;
 		}
 		return fromPuzzleString(puz);
@@ -355,6 +359,8 @@ public class Game extends Activity {
 		getPreferences(MODE_PRIVATE).edit()
 				.putString(key, toPuzzleString(puzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit()
+				.putString(keyPredefined, toPuzzleString(predefined)).commit();
+		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
 
@@ -362,6 +368,7 @@ public class Game extends Activity {
 	protected void onSaveInstanceState(Bundle outState) {
 		stopwatch.stop();
 		outState.putString(key, toPuzzleString(puzzle));
+		outState.putString(keyPredefined, toPuzzleString(predefined));
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
 		super.onSaveInstanceState(outState);
 	}
@@ -429,10 +436,14 @@ public class Game extends Activity {
 
 	// Get the tiles that are predefined by game (which are not blank when the
 	// game start)
-	private void getPredefinedTileFromPuzzle(int[] predefined) {
+	private void getPredefinedTileFromPuzzle(String puz, int[] predefined) {
+
+		int[] puzzleTmp = new int[9 * 9];
+		puzzleTmp = fromPuzzleString(puz);
+
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				final int tmp = getTile(i, j);
+				final int tmp = puzzleTmp[j * 9 + i];
 				if (tmp == 0) {
 					predefined[j * 9 + i] = BLANK;
 				} else {
@@ -443,6 +454,6 @@ public class Game extends Activity {
 	}
 
 	public int[] getPredefinedTileFromPuzzle() {
-		return predefined;
+		return this.predefined;
 	}
 }
