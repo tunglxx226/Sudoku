@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Shader.TileMode;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -49,7 +50,7 @@ public class Game extends Activity {
 
 	private int puzzle[] = new int[9 * 9];
 	// Use to store the predefined tile by game
-	private int predefined[] = new int[9*9];
+	private int predefined[] = new int[9 * 9];
 
 	public PuzzleView puzzleView;
 
@@ -75,7 +76,8 @@ public class Game extends Activity {
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
-			predefined = fromPuzzleString(savedInstanceState.getString(keyPredefined));
+			predefined = fromPuzzleString(savedInstanceState
+					.getString(keyPredefined));
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
 		} else {
@@ -233,7 +235,8 @@ public class Game extends Activity {
 		switch (diff) {
 		case DIFFICULTY_CONTINUE:
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
-			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE).getString(keyPredefined, easyPuzzle));
+			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
+					.getString(keyPredefined, easyPuzzle));
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
@@ -455,5 +458,92 @@ public class Game extends Activity {
 
 	public int[] getPredefinedTileFromPuzzle() {
 		return this.predefined;
+	}
+
+	// -----------------------------------------------------------
+	// -----------New implementation of finish()------------------
+	private int GAME_STATE = 0;
+	private static final int GAME_FINISHED = 0;
+	private int[] validPuzzle = new int[9 * 9];
+
+	public void validMove() {
+		--GAME_STATE;
+	}
+
+	public boolean isFinished() {
+		if (GAME_STATE == GAME_FINISHED) {
+			return true;
+		}
+		return false;
+	}
+
+	// Check duplicate number horizontally
+	// Return true if valid
+	// Return false if exist a duplicate number horizontally
+	private boolean checkHorizontal(int X, int Y, int t) {
+		for (int i = 0; i < 9; i++) {
+			if ((i == X) || (validPuzzle[Y * 9 + i] == 0)) {
+				continue;
+			} else {
+				if (validPuzzle[Y * 9 + i] == t) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// Check duplicate number vertically
+	// Return true if valid
+	// Return false if exist a duplicate number vertically
+	private boolean checkVertical(int X, int Y, int t) {
+		for (int i = 0; i < 9; i++) {
+			if ((i == Y) || (validPuzzle[i * 9 + X] == 0)) {
+				continue;
+			} else {
+				if (validPuzzle[i * 9 + X] == t) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// Check duplicate number on the same cell block
+	// Return true if valid
+	// Return false if exist a duplicate number in this cell block
+	private boolean checkSameCellBlock(int X, int Y, int t) {
+		int startX = (X / 3) * 3;
+		int startY = (Y / 3) * 3;
+		for (int i = startX; i < startX + 3; i++) {
+			for (int j = startY; j < startY + 3; j++) {
+				if (((i == X) && (j == Y)) || (validPuzzle[j * 9 + i] == 0)) {
+					continue;
+				} else {
+					if (validPuzzle[i * 9 + j] == t) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	//Check valid move
+	public boolean checkValidMove(int X, int Y, int t) {
+		if (this.checkHorizontal(X, Y, t) && this.checkVertical(X, Y, t)
+				&& this.checkSameCellBlock(X, Y, t)) {
+			return true;
+		}
+		return false;
+	}
+	//Set valid move to the valid puzzle
+	public boolean setTrackValidMove(int X, int Y, int t)
+	{
+		if (this.checkValidMove(X, Y, t))
+		{
+			validPuzzle[Y*9 + X] = t;
+			return true;
+		}
+		return false;
 	}
 }
