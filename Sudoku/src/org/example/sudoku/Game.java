@@ -8,10 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class Game extends Activity {
@@ -94,11 +92,11 @@ public class Game extends Activity {
 		{
 
 			setContentView(R.layout.gameview);
-			View v = getLayoutInflater().inflate(R.layout.gameview, null);
+//			View v = getLayoutInflater().inflate(R.layout.gameview, null);
 			cont = true;
 			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
-			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
-			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
+//			LinearLayout mLayout1 = (LinearLayout) findViewById(R.id.linearlayouttop);
+//			LinearLayout mLayout2 = (LinearLayout) findViewById(R.id.linearlayoutbottom);
 		}
 		// If game is finished, set cont to false and finish the game
 		else {
