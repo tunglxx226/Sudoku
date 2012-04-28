@@ -35,10 +35,11 @@ public class Game extends Activity {
 	private String introVideoPath;
 	public static boolean storymode = false;
 
-	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the
-
+	// Keys for onPause()
 	private static final String key = "puzzle";
 	private static final String keyPredefined = "predefined";
+	private static final String keyBlankTile = "blank_tiles";
+	private static final String keyInvalidMove = "invalid_moves";
 
 	private final String easyPuzzle = "362581479914237856785694231"
 			+ "170462583823759614546813927" + "431925768657148392298376140";
@@ -50,6 +51,10 @@ public class Game extends Activity {
 	private int puzzle[] = new int[9 * 9];
 	// Use to store the predefined tile by game
 	private int predefined[] = new int[9 * 9];
+	// Used to track the the remaining blank tiles
+	private int blank_tiles = 0;
+	// Used to track the number of invalid moves of game
+	private int invalid_moves = 0;
 
 	public PuzzleView puzzleView;
 
@@ -77,6 +82,10 @@ public class Game extends Activity {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
+			
+			blank_tiles = savedInstanceState.getInt(keyBlankTile);
+			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
+			
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
 		} else {
@@ -236,6 +245,8 @@ public class Game extends Activity {
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
 			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
 					.getString(keyPredefined, easyPuzzle));
+			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
+			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove, 0);
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
@@ -387,6 +398,11 @@ public class Game extends Activity {
 				.putString(key, toPuzzleString(puzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putString(keyPredefined, toPuzzleString(predefined)).commit();
+		getPreferences(MODE_PRIVATE).edit().putInt(keyBlankTile, blank_tiles)
+				.commit();
+		getPreferences(MODE_PRIVATE).edit()
+				.putInt(keyInvalidMove, invalid_moves).commit();
+
 		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
@@ -396,6 +412,8 @@ public class Game extends Activity {
 		stopwatch.stop();
 		outState.putString(key, toPuzzleString(puzzle));
 		outState.putString(keyPredefined, toPuzzleString(predefined));
+		outState.putInt(keyBlankTile, blank_tiles);
+		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
 		super.onSaveInstanceState(outState);
 	}
@@ -486,12 +504,10 @@ public class Game extends Activity {
 
 	// -----------------------------------------------------------
 	// -----------New implementation of finish()------------------
-	private int BLANK_TILES = 0;
-	private int invalid_moves = 0;
 
 	// Finish game if there are no more tile and all tiles are valid
 	public boolean isFinished() {
-		return (BLANK_TILES == 0 && invalid_moves == 0);
+		return (blank_tiles == 0 && invalid_moves == 0);
 	}
 
 	// Check duplicate number horizontally
@@ -576,12 +592,12 @@ public class Game extends Activity {
 
 	// Decrease the number of blank tiles
 	private void decreaseBlankTile() {
-		--BLANK_TILES;
+		--blank_tiles;
 	}
 
 	// Set the number of blank tiles
 	private void setBlankTile(int num) {
-		BLANK_TILES = num;
+		blank_tiles = num;
 	}
 
 	// Get the initial blank tile from puzzle
