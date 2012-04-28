@@ -35,10 +35,11 @@ public class Game extends Activity {
 	private String introVideoPath;
 	public static boolean storymode = false;
 
-	// Neu game hoan thanh roi thi no se dung isFinish duoc, nhu the
-
+	// Keys for onPause()
 	private static final String key = "puzzle";
 	private static final String keyPredefined = "predefined";
+	private static final String keyBlankTile = "blank_tiles";
+	private static final String keyInvalidMove = "invalid_moves";
 
 	private final String easyPuzzle = "362581479914237856785694231"
 			+ "170462583823759614546813927" + "431925768657148392298376140";
@@ -49,7 +50,11 @@ public class Game extends Activity {
 
 	private int puzzle[] = new int[9 * 9];
 	// Use to store the predefined tile by game
-	private int predefined[] = new int[9*9];
+	private int predefined[] = new int[9 * 9];
+	// Used to track the the remaining blank tiles
+	private int blank_tiles = 0;
+	// Used to track the number of invalid moves of game
+	private int invalid_moves = 0;
 
 	public PuzzleView puzzleView;
 
@@ -75,7 +80,12 @@ public class Game extends Activity {
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
 		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
-			predefined = fromPuzzleString(savedInstanceState.getString(keyPredefined));
+			predefined = fromPuzzleString(savedInstanceState
+					.getString(keyPredefined));
+			
+			blank_tiles = savedInstanceState.getInt(keyBlankTile);
+			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
+			
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
 		} else {
@@ -93,7 +103,7 @@ public class Game extends Activity {
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
-		if (!isFinish()) {
+		if (!isFinished()) {
 
 			setContentView(R.layout.gameview);
 			// View v = getLayoutInflater().inflate(R.layout.gameview, null);
@@ -233,20 +243,26 @@ public class Game extends Activity {
 		switch (diff) {
 		case DIFFICULTY_CONTINUE:
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
-			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE).getString(keyPredefined, easyPuzzle));
+			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
+					.getString(keyPredefined, easyPuzzle));
+			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
+			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove, 0);
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_MEDIUM:
 			puz = mediumPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_EASY:
 		default:
 			puz = easyPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		}
 		return fromPuzzleString(puz);
@@ -272,7 +288,29 @@ public class Game extends Activity {
 		return puzzle[y * 9 + x];
 	}
 
+	// Update to decrease the number of blank tiles if the current tile is blank
+	// Also check for valid move right inside this function
 	public void setTile(int x, int y, int value) {
+		if (puzzle[y * 9 + x] == 0) {
+			this.decreaseBlankTile();
+			if (!this.checkValidMove(x, y, value)) {
+				this.increaseInvalidMove();
+			}
+		} else // Already filled before
+		{
+			// On user update move
+			if (!this.checkValidMove(x, y, puzzle[y * 9 + x])) {
+				// User change from invalid move to valid move
+				if (this.checkValidMove(x, y, value)) {
+					this.decreaseInvalidMove();
+				}
+			} else {
+				// User change from valid move to invalid move
+				if (!this.checkValidMove(x, y, value)) {
+					this.increaseInvalidMove();
+				}
+			}
+		}
 		puzzle[y * 9 + x] = value;
 	}
 
@@ -360,6 +398,11 @@ public class Game extends Activity {
 				.putString(key, toPuzzleString(puzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putString(keyPredefined, toPuzzleString(predefined)).commit();
+		getPreferences(MODE_PRIVATE).edit().putInt(keyBlankTile, blank_tiles)
+				.commit();
+		getPreferences(MODE_PRIVATE).edit()
+				.putInt(keyInvalidMove, invalid_moves).commit();
+
 		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
@@ -369,6 +412,8 @@ public class Game extends Activity {
 		stopwatch.stop();
 		outState.putString(key, toPuzzleString(puzzle));
 		outState.putString(keyPredefined, toPuzzleString(predefined));
+		outState.putInt(keyBlankTile, blank_tiles);
+		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
 		super.onSaveInstanceState(outState);
 	}
@@ -455,5 +500,122 @@ public class Game extends Activity {
 
 	public int[] getPredefinedTileFromPuzzle() {
 		return this.predefined;
+	}
+
+	// -----------------------------------------------------------
+	// -----------New implementation of finish()------------------
+
+	// Finish game if there are no more tile and all tiles are valid
+	public boolean isFinished() {
+		return (blank_tiles == 0 && invalid_moves == 0);
+	}
+
+	// Check duplicate number horizontally
+	// Return true if valid
+	// Return false if exist a duplicate number horizontally
+	private boolean checkHorizontal(int X, int Y, int t) {
+		for (int i = 0; i < 9; i++) {
+			if ((i == X) || (puzzle[Y * 9 + i] == 0)) {
+				continue;
+			} else {
+				if (puzzle[Y * 9 + i] == t) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// Check duplicate number vertically
+	// Return true if valid
+	// Return false if exist a duplicate number vertically
+	private boolean checkVertical(int X, int Y, int t) {
+		for (int i = 0; i < 9; i++) {
+			if ((i == Y) || (puzzle[i * 9 + X] == 0)) {
+				continue;
+			} else {
+				if (puzzle[i * 9 + X] == t) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// Check duplicate number on the same cell block
+	// Return true if valid
+	// Return false if exist a duplicate number in this cell block
+	private boolean checkSameCellBlock(int X, int Y, int t) {
+		int startX = (X / 3) * 3;
+		int startY = (Y / 3) * 3;
+		for (int i = startX; i < startX + 3; i++) {
+			for (int j = startY; j < startY + 3; j++) {
+				if (((i == X) && (j == Y)) || (puzzle[j * 9 + i] == 0)) {
+					continue;
+				} else {
+					if (puzzle[j * 9 + i] == t) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	// Check valid move
+	public boolean checkValidMove(int X, int Y, int t) {
+		if (this.checkHorizontal(X, Y, t) && this.checkVertical(X, Y, t)
+				&& this.checkSameCellBlock(X, Y, t)) {
+			return true;
+		}
+		return false;
+	}
+
+	// Check finish-able property
+	public boolean isFinishable() {
+		// return FINISH_ABLE;
+		if (invalid_moves == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	// Increase the number of valid moves
+	private void increaseInvalidMove() {
+		++invalid_moves;
+	}
+
+	// Decrease the number of invalid moves
+	private void decreaseInvalidMove() {
+		--invalid_moves;
+	}
+
+	// Decrease the number of blank tiles
+	private void decreaseBlankTile() {
+		--blank_tiles;
+	}
+
+	// Set the number of blank tiles
+	private void setBlankTile(int num) {
+		blank_tiles = num;
+	}
+
+	// Get the initial blank tile from puzzle
+	public void initialBlankTile(String puz) {
+		int numBlank = 0;
+		for (int i = 0; i < puz.length(); i++) {
+			final char c = puz.charAt(i);
+			if (c == '0') {
+				++numBlank;
+			}
+		}
+		setBlankTile(numBlank);
+	}
+
+	// Check to see if the game is finish
+	public void checkFinishGame() {
+		if (this.isFinished()) {
+			this.confirmExit();
+		}
 	}
 }
