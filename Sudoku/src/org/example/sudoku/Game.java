@@ -273,7 +273,7 @@ public class Game extends Activity {
 
 							public void onClick(DialogInterface dialog, int id) {
 								// TODO Auto-generated method stub
-								Game.this.finish();
+								Game.this.finishGame();
 							}
 						})
 				.setNegativeButton(R.string.replay_label,
