@@ -7,10 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 public class Game extends Activity {
 	private static final String TAG = "Game.java";
@@ -82,37 +80,24 @@ public class Game extends Activity {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
-			
+
 			blank_tiles = savedInstanceState.getInt(keyBlankTile);
 			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
-			
+
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
 		} else {
 			puzzle = getPuzzle(diff);
 			stopwatch.start();
 		}
-		calculateUsedTiles();
-
-		// defines tile that was already filled by the game
-		// ----ma nguon them boi
-		// Tunglxx--------------------------------------------
-		// ----chuc nang: khong cho phep sua cac o da co san trong de
-		// bai-----------
-		calculateUsedTilesIndex(question);
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
 		if (!isFinished()) {
 
 			setContentView(R.layout.gameview);
-			// View v = getLayoutInflater().inflate(R.layout.gameview, null);
 			cont = true;
 			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
-			// LinearLayout mLayout1 = (LinearLayout)
-			// findViewById(R.id.linearlayouttop);
-			// LinearLayout mLayout2 = (LinearLayout)
-			// findViewById(R.id.linearlayoutbottom);
 		}
 		// If game is finished, set cont to false and finish the game
 		else {
@@ -140,101 +125,8 @@ public class Game extends Activity {
 
 	// ...
 	public void showKeypadOrError(int x, int y) {
-		int tiles[] = getUsedTiles(x, y);
-		if (tiles.length == 9) {
-			Toast toast = Toast.makeText(this, R.string.no_moves_label,
-					Toast.LENGTH_SHORT);
-			toast.setGravity(Gravity.CENTER, 0, 0);
-			toast.show();
-		} else {
-			Log.d(TAG, "showKeypad: used=" + toPuzzleString(tiles));
-			Dialog v = new Keypad(this, this.puzzleView, x, y);
-			v.show();
-		}
-	}
-
-	public boolean setTileIfValid(int x, int y, int value) {
-		Log.i(TAG, "setTileIfValid: stepping on");
-		int tiles[] = getUsedTiles(x, y);
-		if (value != 0) {
-			for (int tile : tiles) {
-				if (tile == value) {
-					Log.e(TAG, "setTileIfValid: failed on setTile, tile = "
-							+ tile + " value = " + value);
-					return false;
-				}
-			}
-		}
-		setTile(x, y, value);
-		calculateUsedTiles();
-		return true;
-	}
-
-	private final int used[][][] = new int[9][9][];
-
-	protected int[] getUsedTiles(int x, int y) {
-		return used[x][y];
-	}
-
-	private int[] calculateUsedTiles(int x, int y) {
-		int c[] = new int[9];
-		// horizontal
-		for (int i = 0; i < 9; i++) {
-			if (i == y) {
-				continue;
-			}
-			int t = getTile(x, i);
-			if (t != 0) {
-				c[t - 1] = t;
-			}
-		}
-		// vertical
-		for (int i = 0; i < 9; i++) {
-			if (i == x) {
-				continue;
-			}
-			int t = getTile(i, y);
-			if (t != 0) {
-				c[t - 1] = t;
-			}
-		}
-
-		// same cell block
-		int startx = (x / 3) * 3;
-		int starty = (y / 3) * 3;
-		for (int i = startx; i < startx + 3; i++) {
-			for (int j = starty; j < starty + 3; j++) {
-				if (i == x && j == y)
-					continue;
-				int t = getTile(i, j);
-				if (t != 0)
-					c[t - 1] = t;
-			}
-		}
-
-		// compress
-		int nused = 0;
-		for (int t : c) {
-			if (t != 0) {
-				nused++;
-			}
-		}
-		int c1[] = new int[nused];
-		nused = 0;
-		for (int t : c) {
-			if (t != 0) {
-				c1[nused++] = t;
-			}
-		}
-		return c1;
-	}
-
-	private void calculateUsedTiles() {
-		for (int x = 0; x < 9; x++) {
-			for (int y = 0; y < 9; y++) {
-				used[x][y] = calculateUsedTiles(x, y);
-			}
-		}
+		Dialog v = new Keypad(this, this.puzzleView, x, y);
+		v.show();
 	}
 
 	private int[] getPuzzle(int diff) {
@@ -246,7 +138,8 @@ public class Game extends Activity {
 			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
 					.getString(keyPredefined, easyPuzzle));
 			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
-			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove, 0);
+			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove,
+					0);
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
@@ -323,58 +216,9 @@ public class Game extends Activity {
 		}
 	}
 
-	// --ma nguon them boi Tunglx-----------------------------------------------
-	// ----chuc nang: khong cho phep sua cac o da co san trong de bai-----------
-
-	protected final int question[][] = new int[81][2];
-	protected int usedNum = 0;
-
-	private void calculateUsedTilesIndex(int[][] c) // Ham nay duoc sua de co
-													// the tinh toan cac index
-													// cua cac o da su dung.
-	{
-		int k = 0;
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				final int t = getTile(i, j);
-				if (t != 0) {
-					c[k][0] = i;
-					c[k][1] = j;
-					k++;
-				}
-			}
-		}
-		usedNum = k; // dem so luong o da duoc su dung, phuc vu cho ham`
-						// isFinish()
-	}
-
-	protected int[][] getUsedIndex() {
-		return question;
-	}
-
-	// -------------------------------------------------------------------------
-
-	// Ma nguon them boi Tunglx------------------------------------------------
-	// Xac dinh khi nao thi het game (tat ca cac o deu duoc dien.)
-	protected boolean isFinish() {
-		int[][] c = new int[81][2];
-		calculateUsedTilesIndex(c);
-		if (usedNum == 81) {
-			stopwatch.stop();
-			return true;
-		}
-		return false;
-	}
-
-	protected void callFinishScreen() {
-		cont = false;
-		stopwatch.stop();
-		confirmExit();
-	}
-
 	protected void finishGame() {
 		cont = false;
-		stopwatch.stop();
+//		stopwatch.stop();
 		finish();
 	}
 
