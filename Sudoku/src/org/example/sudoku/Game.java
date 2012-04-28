@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Shader.TileMode;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -95,7 +94,7 @@ public class Game extends Activity {
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
-		if (!isFinish()) {
+		if (!isFinished()) {
 
 			setContentView(R.layout.gameview);
 			// View v = getLayoutInflater().inflate(R.layout.gameview, null);
@@ -241,15 +240,18 @@ public class Game extends Activity {
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_MEDIUM:
 			puz = mediumPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_EASY:
 		default:
 			puz = easyPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.initialBlankTile(puz);
 			break;
 		}
 		return fromPuzzleString(puz);
@@ -275,7 +277,29 @@ public class Game extends Activity {
 		return puzzle[y * 9 + x];
 	}
 
+	// Update to decrease the number of blank tiles if the current tile is blank
+	// Also check for valid move right inside this function
 	public void setTile(int x, int y, int value) {
+		if (puzzle[y * 9 + x] == 0) {
+			this.decreaseBlankTile();
+			if (!this.checkValidMove(x, y, value)) {
+				this.increaseInvalidMove();
+			}
+		} else // Already filled before
+		{
+			// On user update move
+			if (!this.checkValidMove(x, y, puzzle[y * 9 + x])) {
+				// User change from invalid move to valid move
+				if (this.checkValidMove(x, y, value)) {
+					this.decreaseInvalidMove();
+				}
+			} else {
+				// User change from valid move to invalid move
+				if (!this.checkValidMove(x, y, value)) {
+					this.increaseInvalidMove();
+				}
+			}
+		}
 		puzzle[y * 9 + x] = value;
 	}
 
@@ -462,19 +486,12 @@ public class Game extends Activity {
 
 	// -----------------------------------------------------------
 	// -----------New implementation of finish()------------------
-	private int GAME_STATE = 0;
-	private static final int GAME_FINISHED = 0;
-	private int[] validPuzzle = new int[9 * 9];
+	private int BLANK_TILES = 0;
+	private int invalid_moves = 0;
 
-	public void validMove() {
-		--GAME_STATE;
-	}
-
+	// Finish game if there are no more tile and all tiles are valid
 	public boolean isFinished() {
-		if (GAME_STATE == GAME_FINISHED) {
-			return true;
-		}
-		return false;
+		return (BLANK_TILES == 0 && invalid_moves == 0);
 	}
 
 	// Check duplicate number horizontally
@@ -482,10 +499,10 @@ public class Game extends Activity {
 	// Return false if exist a duplicate number horizontally
 	private boolean checkHorizontal(int X, int Y, int t) {
 		for (int i = 0; i < 9; i++) {
-			if ((i == X) || (validPuzzle[Y * 9 + i] == 0)) {
+			if ((i == X) || (puzzle[Y * 9 + i] == 0)) {
 				continue;
 			} else {
-				if (validPuzzle[Y * 9 + i] == t) {
+				if (puzzle[Y * 9 + i] == t) {
 					return false;
 				}
 			}
@@ -498,10 +515,10 @@ public class Game extends Activity {
 	// Return false if exist a duplicate number vertically
 	private boolean checkVertical(int X, int Y, int t) {
 		for (int i = 0; i < 9; i++) {
-			if ((i == Y) || (validPuzzle[i * 9 + X] == 0)) {
+			if ((i == Y) || (puzzle[i * 9 + X] == 0)) {
 				continue;
 			} else {
-				if (validPuzzle[i * 9 + X] == t) {
+				if (puzzle[i * 9 + X] == t) {
 					return false;
 				}
 			}
@@ -517,10 +534,10 @@ public class Game extends Activity {
 		int startY = (Y / 3) * 3;
 		for (int i = startX; i < startX + 3; i++) {
 			for (int j = startY; j < startY + 3; j++) {
-				if (((i == X) && (j == Y)) || (validPuzzle[j * 9 + i] == 0)) {
+				if (((i == X) && (j == Y)) || (puzzle[j * 9 + i] == 0)) {
 					continue;
 				} else {
-					if (validPuzzle[i * 9 + j] == t) {
+					if (puzzle[j * 9 + i] == t) {
 						return false;
 					}
 				}
@@ -528,7 +545,8 @@ public class Game extends Activity {
 		}
 		return true;
 	}
-	//Check valid move
+
+	// Check valid move
 	public boolean checkValidMove(int X, int Y, int t) {
 		if (this.checkHorizontal(X, Y, t) && this.checkVertical(X, Y, t)
 				&& this.checkSameCellBlock(X, Y, t)) {
@@ -536,14 +554,52 @@ public class Game extends Activity {
 		}
 		return false;
 	}
-	//Set valid move to the valid puzzle
-	public boolean setTrackValidMove(int X, int Y, int t)
-	{
-		if (this.checkValidMove(X, Y, t))
-		{
-			validPuzzle[Y*9 + X] = t;
+
+	// Check finish-able property
+	public boolean isFinishable() {
+		// return FINISH_ABLE;
+		if (invalid_moves == 0) {
 			return true;
 		}
 		return false;
+	}
+
+	// Increase the number of valid moves
+	private void increaseInvalidMove() {
+		++invalid_moves;
+	}
+
+	// Decrease the number of invalid moves
+	private void decreaseInvalidMove() {
+		--invalid_moves;
+	}
+
+	// Decrease the number of blank tiles
+	private void decreaseBlankTile() {
+		--BLANK_TILES;
+	}
+
+	// Set the number of blank tiles
+	private void setBlankTile(int num) {
+		BLANK_TILES = num;
+	}
+
+	// Get the initial blank tile from puzzle
+	public void initialBlankTile(String puz) {
+		int numBlank = 0;
+		for (int i = 0; i < puz.length(); i++) {
+			final char c = puz.charAt(i);
+			if (c == '0') {
+				++numBlank;
+			}
+		}
+		setBlankTile(numBlank);
+	}
+
+	// Check to see if the game is finish
+	public void checkFinishGame() {
+		if (this.isFinished()) {
+			this.confirmExit();
+		}
 	}
 }
