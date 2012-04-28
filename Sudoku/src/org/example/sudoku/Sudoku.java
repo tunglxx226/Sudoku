@@ -18,6 +18,7 @@ import android.view.WindowManager;
 public class Sudoku extends Activity implements OnClickListener{
 	
 	private static final String TAG = "Sudoku";
+	//private StoryProfile storyProfile = new StoryProfile();
 	boolean doneVideo = false;
     /** Called when the activity is first created. */
     @Override
@@ -53,13 +54,14 @@ public class Sudoku extends Activity implements OnClickListener{
     	{
     		case R.id.story_button:
     				Game.storymode = true;
-    				startGame(Game.DIFFICULTY_CONTINUE);
+    				startGame(Game.DIFFICULTY_EASY);
     				break;
 	    	case R.id.about_button:
 	    			Intent i = new Intent(this, About.class);
 	    			startActivity(i);
 	    			break;
 	    	case R.id.new_button:
+	    			Game.storymode = false;
 	    			openNewGameDialog();
 	    			break;
 	    	case R.id.exit_button:

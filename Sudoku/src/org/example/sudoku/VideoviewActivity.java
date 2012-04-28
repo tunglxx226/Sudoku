@@ -47,6 +47,7 @@ public class VideoviewActivity extends Activity implements OnCompletionListener,
 	{
 		if (v.getId() == R.id.video)
 		{
+			
 			finish();
 			buttonVisibility = true;
 			return true;
