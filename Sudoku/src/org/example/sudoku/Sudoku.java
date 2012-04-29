@@ -31,8 +31,11 @@ public class Sudoku extends Activity implements OnClickListener{
         setContentView(R.layout.main); 
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         
+        // Show video at the beginning
         Intent i = new Intent(this, VideoviewActivity.class);
+        i.putExtra(VideoviewActivity.setTAG, 0);
     	startActivity(i);
+    	//------------------------------------------
 	       
 	    //Set up click listeners for all the buttons
 	    View storyButton = findViewById(R.id.story_button);

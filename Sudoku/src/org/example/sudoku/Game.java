@@ -33,8 +33,7 @@ public class Game extends Activity {
 	public static boolean cont = false;
 
 	// Game profile statistic
-	private int level;
-	private String introVideoPath;
+	public static int level;
 	public static boolean storymode = false;
 	public static StoryProfile storyProfile = new StoryProfile();
 
@@ -68,7 +67,13 @@ public class Game extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		
+		// Show video at the beginning
+		Intent i = new Intent(this, VideoviewActivity.class);
+        i.putExtra(VideoviewActivity.setTAG, 1);
+    	startActivity(i);
+    	//---------------------------------------------------
+    	
 		bundle = savedInstanceState;
 
 		Log.d(TAG, "onCreate");
@@ -139,16 +144,8 @@ public class Game extends Activity {
 		return level;
 	}
 
-	public String getIntro() {
-		return introVideoPath;
-	}
-
 	public void setLevel(int newLevel) {
 		level = newLevel;
-	}
-
-	public void setIntro(String videoPath) {
-		introVideoPath = videoPath;
 	}
 
 	// ...
