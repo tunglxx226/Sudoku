@@ -45,5 +45,7 @@
 	<string name="exit_yes_label">Có</string>
 	<string name="exit_no_label">Không</string>
 	<string name="replay_label">Chơi lại</string>
+	<string name="level">Màn</string>
+	<string name="complete">đã hoàn thành.</string>
 
 </resources>

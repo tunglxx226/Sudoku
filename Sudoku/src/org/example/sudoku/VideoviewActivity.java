@@ -15,13 +15,20 @@ import android.widget.VideoView;
 
 public class VideoviewActivity extends Activity implements OnCompletionListener, OnTouchListener
 {
+	public static final int NONE = -1;
+	public static final int SUDOKU = 0;
+	public static final int GAME = 1;
+	public static final String setTAG = "org.example.sudoku.VideoviewActivity.TAG";
+	public static int TAG;
 	boolean buttonVisibility = false;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
     	
         super.onCreate(savedInstanceState);
+        IntroVideo introVideo = new IntroVideo(TAG);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.videoview);
@@ -29,8 +36,7 @@ public class VideoviewActivity extends Activity implements OnCompletionListener,
         
         VideoView videoHolder = (VideoView) findViewById(R.id.video);
         
-        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" 
-        + R.raw.intro);
+        Uri video = Uri.parse(introVideo.getIntroVideo());
         videoHolder.setVideoURI(video);
 
         videoHolder.start();
@@ -47,10 +53,13 @@ public class VideoviewActivity extends Activity implements OnCompletionListener,
 	{
 		if (v.getId() == R.id.video)
 		{
+			
 			finish();
 			buttonVisibility = true;
 			return true;
 		}
 		return false;
 	}
+	
+	
 }
