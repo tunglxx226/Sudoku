@@ -20,22 +20,23 @@ public class PuzzleView extends View {
 	private static final String SELX = "selX";
 	private static final String SELY = "selY";
 	private static final String VIEW_STATE = "viewState";
-	//private static final int ID = 42;
+
+	// private static final int ID = 42;
 
 	public PuzzleView(Context context) {
 		super(context);
 		this.game = (Game) context;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		//setId(ID);
-		
+		// setId(ID);
+
 	}
 
 	public PuzzleView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		
+
 	}
 
 	public PuzzleView(Context context, AttributeSet attrs, int defStyle) {
@@ -43,8 +44,8 @@ public class PuzzleView extends View {
 		this.game = (Game) context;
 		setFocusable(true);
 		setFocusableInTouchMode(true);
-		//setId(ID);
-		
+		// setId(ID);
+
 		// real work here
 	}
 
@@ -94,12 +95,12 @@ public class PuzzleView extends View {
 						* height + y, foreground);
 			}
 		}
-		
+
 		// Draw the selection
 		Log.d(TAG, "selRect=" + selRect);
 		Paint selected = new Paint();
 		selected.setColor(getResources().getColor(R.color.puzzle_selected));
-		canvas.drawRect(selRect, selected); 
+		canvas.drawRect(selRect, selected);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class PuzzleView extends View {
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
 			select(selX + 1, selY);
 			break;
-		
+
 		default:
 			return super.onKeyDown(keyCode, event);
 		}
@@ -134,21 +135,6 @@ public class PuzzleView extends View {
 		invalidate(selRect);
 	}
 
-	// Get the coordinate of the selected tile
-	private int[] selectCordinate(int x, int y) {
-		invalidate(selRect);
-		int[] cordinate = new int[2];
-		selX = Math.min(Math.max(x, 0), 8);
-		selY = Math.min(Math.max(y, 0), 8);
-
-		cordinate[0] = selX;
-		cordinate[1] = selY;
-
-		getRect(selX, selY, selRect);
-		invalidate(selRect);
-		return cordinate;
-	}
-
 	// Handle input in touch mode
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -158,15 +144,13 @@ public class PuzzleView extends View {
 
 		// Allow player to choose the tile that defined by game
 		// But only allow the user to modify the tiles that are blank
-		int[] selected = new int[2];
-		selected = selectCordinate((int) (event.getX() / width),
-				(int) (event.getY() / height));
+		select((int) (event.getX() / width), (int) (event.getY() / height));
 
 		int[] predefined = new int[81];
 		// Get the tile that are not blank (predefined by game)
 		predefined = game.getPredefinedTileFromPuzzle();
 		// Check if the selected tile is whether predefined or not
-		if (predefined[selected[1] * 9 + selected[0]] == 1) {
+		if (predefined[selY * 9 + selX] != 0) {
 			return true;
 		}
 		game.showKeypadOrError(selX, selY);

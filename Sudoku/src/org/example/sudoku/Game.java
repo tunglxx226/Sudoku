@@ -5,16 +5,15 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-import android.widget.VideoView;
 
-public class Game extends Activity {
+public class Game extends Activity implements OnClickListener {
 	private static final String TAG = "Game.java";
 	public static final String KEY_DIFFICULTY = "org.example.sudoku.difficulty";
 	public static final int DIFFICULTY_EASY = 0;
@@ -42,6 +41,7 @@ public class Game extends Activity {
 	private static final String keyPredefined = "predefined";
 	private static final String keyBlankTile = "blank_tiles";
 	private static final String keyInvalidMove = "invalid_moves";
+	private static final String keyOrigin = "originalPuzzle";
 	private static final String keyLevel = "level";
 
 	private final String easyPuzzle = "362581479914237856785694231"
@@ -52,6 +52,8 @@ public class Game extends Activity {
 			+ "000000700706040102004000000" + "000720903090301080000000600";
 
 	private int puzzle[] = new int[9 * 9];
+	// Used to store the state of the original puzzle
+	private int originalPuzzle[] = new int[9 * 9];
 	// Use to store the predefined tile by game
 	private int predefined[] = new int[9 * 9];
 	// Used to track the the remaining blank tiles
@@ -67,13 +69,15 @@ public class Game extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+
 		// Show video at the beginning
-		Intent i = new Intent(this, VideoviewActivity.class);
-        i.putExtra(VideoviewActivity.setTAG, 1);
-    	startActivity(i);
-    	//---------------------------------------------------
-    	
+		if (storymode == true) {
+			Intent i = new Intent(this, VideoviewActivity.class);
+			i.putExtra(VideoviewActivity.setTAG, 1);
+			startActivity(i);
+		}
+		// ---------------------------------------------------
+
 		bundle = savedInstanceState;
 
 		Log.d(TAG, "onCreate");
@@ -81,62 +85,92 @@ public class Game extends Activity {
 		cont = false;
 		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
-		
-		if (savedInstanceState != null) 
-		{
+
+		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
+			originalPuzzle = fromPuzzleString(savedInstanceState
+					.getString(keyOrigin));
+
 			level = savedInstanceState.getInt(keyLevel);
-			
+
 			blank_tiles = savedInstanceState.getInt(keyBlankTile);
 			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
-			
+
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
-			if (storymode == true)
-			{	
+			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		} else {
-			
 			puzzle = getPuzzle(diff);
 			level = storyProfile.getLevel();
-			if (storymode == true)
-			{	
+			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
 			}
 			stopwatch.start();
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
-		calculateUsedTiles();
-
-		// defines tile that was already filled by the game
-		// ----ma nguon them boi
-		// Tunglxx--------------------------------------------
-		// ----chuc nang: khong cho phep sua cac o da co san trong de
-		// bai-----------
-		calculateUsedTilesIndex(question);
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
 		if (!isFinished()) {
 
 			setContentView(R.layout.gameview);
-			// View v = getLayoutInflater().inflate(R.layout.gameview, null);
 			cont = true;
 			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
-			// LinearLayout mLayout1 = (LinearLayout)
-			// findViewById(R.id.linearlayouttop);
-			// LinearLayout mLayout2 = (LinearLayout)
-			// findViewById(R.id.linearlayoutbottom);
 		}
 		// If game is finished, set cont to false and finish the game
 		else {
 			cont = false;
 			Game.this.finish();
 		}
+
+		// Clear function implementation
+		View clearButton = findViewById(R.id.clear_button);
+		clearButton.setOnClickListener(this);
+		View restartButton = findViewById(R.id.restart_button);
+		restartButton.setOnClickListener(this);
+		View undoButton = findViewById(R.id.undo_button);
+		undoButton.setOnClickListener(this);
+		View pauseButton = findViewById(R.id.pause_button);
+		pauseButton.setOnClickListener(this);
+
+	}
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.restart_button:
+			Toast toast1 = Toast.makeText(getApplicationContext(),
+					"Restart button", Toast.LENGTH_SHORT);
+			toast1.show();
+			break;
+		case R.id.clear_button:
+			this.confirmClear();
+			break;
+		case R.id.undo_button:
+			Toast toast3 = Toast.makeText(getApplicationContext(),
+					"Undo button", Toast.LENGTH_SHORT);
+			toast3.show();
+			break;
+		case R.id.pause_button:
+			Toast toast = Toast.makeText(getApplicationContext(),
+					"Pause button", Toast.LENGTH_SHORT);
+			toast.show();
+			break;
+		}
+	}
+
+	// -------------Implement buttons--------------------
+
+	// -------------Clear Button
+	private void clearPuzzle() {
+		invalid_moves = 0;
+		puzzle = this.copyArray(originalPuzzle);
+		this.initialBlankTile(toPuzzleString(originalPuzzle));
+		this.puzzleView.invalidate();
 	}
 
 	// Get or set level and intro movies
@@ -150,101 +184,8 @@ public class Game extends Activity {
 
 	// ...
 	public void showKeypadOrError(int x, int y) {
-		int tiles[] = getUsedTiles(x, y);
-		if (tiles.length == 9) {
-			Toast toast = Toast.makeText(this, R.string.no_moves_label,
-					Toast.LENGTH_SHORT);
-			toast.setGravity(Gravity.CENTER, 0, 0);
-			toast.show();
-		} else {
-			Log.d(TAG, "showKeypad: used=" + toPuzzleString(tiles));
-			Dialog v = new Keypad(this, this.puzzleView, x, y);
-			v.show();
-		}
-	}
-
-	public boolean setTileIfValid(int x, int y, int value) {
-		Log.i(TAG, "setTileIfValid: stepping on");
-		int tiles[] = getUsedTiles(x, y);
-		if (value != 0) {
-			for (int tile : tiles) {
-				if (tile == value) {
-					Log.e(TAG, "setTileIfValid: failed on setTile, tile = "
-							+ tile + " value = " + value);
-					return false;
-				}
-			}
-		}
-		setTile(x, y, value);
-		calculateUsedTiles();
-		return true;
-	}
-
-	private final int used[][][] = new int[9][9][];
-
-	protected int[] getUsedTiles(int x, int y) {
-		return used[x][y];
-	}
-
-	private int[] calculateUsedTiles(int x, int y) {
-		int c[] = new int[9];
-		// horizontal
-		for (int i = 0; i < 9; i++) {
-			if (i == y) {
-				continue;
-			}
-			int t = getTile(x, i);
-			if (t != 0) {
-				c[t - 1] = t;
-			}
-		}
-		// vertical
-		for (int i = 0; i < 9; i++) {
-			if (i == x) {
-				continue;
-			}
-			int t = getTile(i, y);
-			if (t != 0) {
-				c[t - 1] = t;
-			}
-		}
-
-		// same cell block
-		int startx = (x / 3) * 3;
-		int starty = (y / 3) * 3;
-		for (int i = startx; i < startx + 3; i++) {
-			for (int j = starty; j < starty + 3; j++) {
-				if (i == x && j == y)
-					continue;
-				int t = getTile(i, j);
-				if (t != 0)
-					c[t - 1] = t;
-			}
-		}
-
-		// compress
-		int nused = 0;
-		for (int t : c) {
-			if (t != 0) {
-				nused++;
-			}
-		}
-		int c1[] = new int[nused];
-		nused = 0;
-		for (int t : c) {
-			if (t != 0) {
-				c1[nused++] = t;
-			}
-		}
-		return c1;
-	}
-
-	private void calculateUsedTiles() {
-		for (int x = 0; x < 9; x++) {
-			for (int y = 0; y < 9; y++) {
-				used[x][y] = calculateUsedTiles(x, y);
-			}
-		}
+		Dialog v = new Keypad(this, this.puzzleView, x, y);
+		v.show();
 	}
 
 	private int[] getPuzzle(int diff) {
@@ -255,23 +196,29 @@ public class Game extends Activity {
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
 			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
 					.getString(keyPredefined, easyPuzzle));
+			originalPuzzle = fromPuzzleString(getPreferences(MODE_PRIVATE)
+					.getString(keyOrigin, easyPuzzle));
 			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
-			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove, 0);
+			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove,
+					0);
 			break;
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_MEDIUM:
 			puz = mediumPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_EASY:
 		default:
 			puz = easyPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		}
@@ -333,63 +280,10 @@ public class Game extends Activity {
 		}
 	}
 
-	// --ma nguon them boi Tunglx-----------------------------------------------
-	// ----chuc nang: khong cho phep sua cac o da co san trong de bai-----------
-
-	protected final int question[][] = new int[81][2];
-	protected int usedNum = 0;
-
-	private void calculateUsedTilesIndex(int[][] c) // Ham nay duoc sua de co
-													// the tinh toan cac index
-													// cua cac o da su dung.
-	{
-		int k = 0;
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				final int t = getTile(i, j);
-				if (t != 0) {
-					c[k][0] = i;
-					c[k][1] = j;
-					k++;
-				}
-			}
-		}
-		usedNum = k; // dem so luong o da duoc su dung, phuc vu cho ham`
-						// isFinish()
-	}
-
-	protected int[][] getUsedIndex() {
-		return question;
-	}
-
-	// -------------------------------------------------------------------------
-
-	// Ma nguon them boi Tunglx------------------------------------------------
-	// Xac dinh khi nao thi het game (tat ca cac o deu duoc dien.)
-	protected boolean isFinish() 
-	{
-		int[][] c = new int[81][2];
-		calculateUsedTilesIndex(c);
-		if (usedNum == 81) {
-			stopwatch.stop();
-			
-			return true;
-		
-		}
-		return false;
-	}
-
-	protected void callFinishScreen() {
-		cont = false;
-		stopwatch.stop();
-		confirmExit();
-	}
-
 	protected void finishGame() {
 		cont = false;
 		stopwatch.stop();
-		if (storymode == true)
-		{
+		if (storymode == true) {
 			storyProfile.levelUp();
 			Intent i = new Intent(this, Game.class);
 			startActivity(i);
@@ -417,13 +311,15 @@ public class Game extends Activity {
 				.putString(key, toPuzzleString(puzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putString(keyPredefined, toPuzzleString(predefined)).commit();
+		getPreferences(MODE_PRIVATE).edit()
+				.putString(keyOrigin, toPuzzleString(originalPuzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit().putInt(keyBlankTile, blank_tiles)
 				.commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putInt(keyInvalidMove, invalid_moves).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putInt(keyLevel, storyProfile.getLevel()).commit();
-		
+
 		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
@@ -433,11 +329,12 @@ public class Game extends Activity {
 		stopwatch.stop();
 		outState.putString(key, toPuzzleString(puzzle));
 		outState.putString(keyPredefined, toPuzzleString(predefined));
+		outState.putString(keyOrigin, toPuzzleString(originalPuzzle));
 		outState.putInt(keyBlankTile, blank_tiles);
 		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
 		outState.putInt(keyLevel, storyProfile.getLevel());
-		
+
 		super.onSaveInstanceState(outState);
 	}
 
@@ -452,7 +349,7 @@ public class Game extends Activity {
 
 							public void onClick(DialogInterface dialog, int id) {
 								// TODO Auto-generated method stub
-								Game.this.finish();
+								Game.this.finishGame();
 							}
 						})
 				.setNegativeButton(R.string.replay_label,
@@ -462,7 +359,9 @@ public class Game extends Activity {
 								// TODO Auto-generated method stub
 								openNewGameDialog();
 								dialog.cancel();
-
+								// bug here: crash when user cancel
+								// openNewGameDialog()
+								// wait to fix
 							}
 						});
 		builder.create();
@@ -594,15 +493,6 @@ public class Game extends Activity {
 		return false;
 	}
 
-	// Check finish-able property
-	public boolean isFinishable() {
-		// return FINISH_ABLE;
-		if (invalid_moves == 0) {
-			return true;
-		}
-		return false;
-	}
-
 	// Increase the number of valid moves
 	private void increaseInvalidMove() {
 		++invalid_moves;
@@ -637,34 +527,73 @@ public class Game extends Activity {
 
 	// Check to see if the game is finish
 	public void checkFinishGame() {
-		if (this.isFinished()) 
-		{
-			if (storymode == true && storyProfile != null)
-			{
-				StringBuilder buf = new StringBuilder();
-				String message = getResources().getString(R.string.level)
-						+ " " + Integer.toString(level + 1)
-						+ " " + getResources().getString(R.string.complete);
-				
-				
+		if (this.isFinished()) {
+			if (storymode == true && storyProfile != null) {
+				String message = getResources().getString(R.string.level) + " "
+						+ Integer.toString(level + 1) + " "
+						+ getResources().getString(R.string.complete);
+
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)
 						.setCancelable(false)
 						.setPositiveButton("OK",
 								new DialogInterface.OnClickListener() {
 
-									public void onClick(DialogInterface dialog, int id) {
+									public void onClick(DialogInterface dialog,
+											int id) {
 										storyProfile.levelUp();
-										Intent i = new Intent(Game.this, Game.class);
-						    			startActivity(i);
-						    			finish();
+										Intent i = new Intent(Game.this,
+												Game.class);
+										startActivity(i);
+										finish();
 									}
 								});
 				builder.create();
 				builder.show();
-    			return;
+				return;
 			}
 			this.confirmExit();
 		}
+	}
+
+	// Store the original state of puzzle
+	private void storeOriginalState(String puz) {
+		this.originalPuzzle = fromPuzzleString(puz);
+	}
+
+	// Copy array
+	private int[] copyArray(int[] origin) {
+		int index = origin.length;
+		int[] tmp = new int[index];
+		for (int i = 0; i < index; i++) {
+			tmp[i] = origin[i];
+		}
+		return tmp;
+	}
+
+	// Confirm before clear all filled-in tiles
+	// Confirm exit
+	private void confirmClear() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.confirm_clear)
+				.setCancelable(false)
+				.setPositiveButton(R.string.exit_yes_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								clearPuzzle();
+							}
+						})
+				.setNegativeButton(R.string.exit_no_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								dialog.cancel();
+							}
+						});
+		builder.create();
+		builder.show();
 	}
 }
