@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 public class Game extends Activity implements OnClickListener {
 	private static final String TAG = "Game.java";
@@ -71,13 +69,15 @@ public class Game extends Activity implements OnClickListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+
 		// Show video at the beginning
-		Intent i = new Intent(this, VideoviewActivity.class);
-        i.putExtra(VideoviewActivity.setTAG, 1);
-    	startActivity(i);
-    	//---------------------------------------------------
-    	
+		if (storymode == true) {
+			Intent i = new Intent(this, VideoviewActivity.class);
+			i.putExtra(VideoviewActivity.setTAG, 1);
+			startActivity(i);
+		}
+		// ---------------------------------------------------
+
 		bundle = savedInstanceState;
 
 		Log.d(TAG, "onCreate");
@@ -85,9 +85,8 @@ public class Game extends Activity implements OnClickListener {
 		cont = false;
 		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
-		
-		if (savedInstanceState != null) 
-		{
+
+		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
@@ -95,23 +94,20 @@ public class Game extends Activity implements OnClickListener {
 					.getString(keyOrigin));
 
 			level = savedInstanceState.getInt(keyLevel);
-			
+
 			blank_tiles = savedInstanceState.getInt(keyBlankTile);
 			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
 
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
-			if (storymode == true)
-			{	
+			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		} else {
-			
 			puzzle = getPuzzle(diff);
 			level = storyProfile.getLevel();
-			if (storymode == true)
-			{	
+			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
 			}
 			stopwatch.start();
@@ -287,8 +283,7 @@ public class Game extends Activity implements OnClickListener {
 	protected void finishGame() {
 		cont = false;
 		stopwatch.stop();
-		if (storymode == true)
-		{
+		if (storymode == true) {
 			storyProfile.levelUp();
 			Intent i = new Intent(this, Game.class);
 			startActivity(i);
@@ -324,7 +319,7 @@ public class Game extends Activity implements OnClickListener {
 				.putInt(keyInvalidMove, invalid_moves).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putInt(keyLevel, storyProfile.getLevel()).commit();
-		
+
 		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
@@ -339,7 +334,7 @@ public class Game extends Activity implements OnClickListener {
 		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
 		outState.putInt(keyLevel, storyProfile.getLevel());
-		
+
 		super.onSaveInstanceState(outState);
 	}
 
@@ -364,8 +359,9 @@ public class Game extends Activity implements OnClickListener {
 								// TODO Auto-generated method stub
 								openNewGameDialog();
 								dialog.cancel();
-								//bug here: crash when user cancel openNewGameDialog()
-								//wait to fix
+								// bug here: crash when user cancel
+								// openNewGameDialog()
+								// wait to fix
 							}
 						});
 		builder.create();
@@ -531,32 +527,30 @@ public class Game extends Activity implements OnClickListener {
 
 	// Check to see if the game is finish
 	public void checkFinishGame() {
-		if (this.isFinished()) 
-		{
-			if (storymode == true && storyProfile != null)
-			{
-				StringBuilder buf = new StringBuilder();
-				String message = getResources().getString(R.string.level)
-						+ " " + Integer.toString(level + 1)
-						+ " " + getResources().getString(R.string.complete);
-				
-				
+		if (this.isFinished()) {
+			if (storymode == true && storyProfile != null) {
+				String message = getResources().getString(R.string.level) + " "
+						+ Integer.toString(level + 1) + " "
+						+ getResources().getString(R.string.complete);
+
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)
 						.setCancelable(false)
 						.setPositiveButton("OK",
 								new DialogInterface.OnClickListener() {
 
-									public void onClick(DialogInterface dialog, int id) {
+									public void onClick(DialogInterface dialog,
+											int id) {
 										storyProfile.levelUp();
-										Intent i = new Intent(Game.this, Game.class);
-						    			startActivity(i);
-						    			finish();
+										Intent i = new Intent(Game.this,
+												Game.class);
+										startActivity(i);
+										finish();
 									}
 								});
 				builder.create();
 				builder.show();
-    			return;
+				return;
 			}
 			this.confirmExit();
 		}
@@ -576,28 +570,30 @@ public class Game extends Activity implements OnClickListener {
 		}
 		return tmp;
 	}
-	//Confirm before clear all filled-in tiles
-	//Confirm exit
-    private void confirmClear()
-    {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage(R.string.confirm_clear)
-    		   .setCancelable(false)
-    		   .setPositiveButton(R.string.exit_yes_label, new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface dialog, int id) {
-					// TODO Auto-generated method stub
-					clearPuzzle();
-				}
-			})
-			   .setNegativeButton(R.string.exit_no_label, new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface dialog, int id) {
-					// TODO Auto-generated method stub
-					dialog.cancel();
-				}
-			});
-    	builder.create();
-    	builder.show();
-    }
+
+	// Confirm before clear all filled-in tiles
+	// Confirm exit
+	private void confirmClear() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.confirm_clear)
+				.setCancelable(false)
+				.setPositiveButton(R.string.exit_yes_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								clearPuzzle();
+							}
+						})
+				.setNegativeButton(R.string.exit_no_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								dialog.cancel();
+							}
+						});
+		builder.create();
+		builder.show();
+	}
 }
