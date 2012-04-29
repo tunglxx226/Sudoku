@@ -7,10 +7,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
-public class Game extends Activity {
+public class Game extends Activity implements OnClickListener {
 	private static final String TAG = "Game.java";
 	public static final String KEY_DIFFICULTY = "org.example.sudoku.difficulty";
 	public static final int DIFFICULTY_EASY = 0;
@@ -38,6 +41,7 @@ public class Game extends Activity {
 	private static final String keyPredefined = "predefined";
 	private static final String keyBlankTile = "blank_tiles";
 	private static final String keyInvalidMove = "invalid_moves";
+	private static final String keyOrigin = "originalPuzzle";
 
 	private final String easyPuzzle = "362581479914237856785694231"
 			+ "170462583823759614546813927" + "431925768657148392298376140";
@@ -47,6 +51,8 @@ public class Game extends Activity {
 			+ "000000700706040102004000000" + "000720903090301080000000600";
 
 	private int puzzle[] = new int[9 * 9];
+	// Used to store the state of the original puzzle
+	private int originalPuzzle[] = new int[9 * 9];
 	// Use to store the predefined tile by game
 	private int predefined[] = new int[9 * 9];
 	// Used to track the the remaining blank tiles
@@ -64,12 +70,6 @@ public class Game extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		bundle = savedInstanceState;
-		// initialize puzzleView
-		/*
-		 * puzzleView = new PuzzleView(this);
-		 * puzzleView.setFocusableInTouchMode(true);
-		 * puzzleView.setFocusable(true);
-		 */
 
 		Log.d(TAG, "onCreate");
 
@@ -80,7 +80,8 @@ public class Game extends Activity {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
-
+			originalPuzzle = fromPuzzleString(savedInstanceState
+					.getString(keyOrigin));
 			blank_tiles = savedInstanceState.getInt(keyBlankTile);
 			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
 
@@ -104,6 +105,50 @@ public class Game extends Activity {
 			cont = false;
 			Game.this.finish();
 		}
+
+		// Clear function implementation
+		View clearButton = findViewById(R.id.clear_button);
+		clearButton.setOnClickListener(this);
+		View restartButton = findViewById(R.id.restart_button);
+		restartButton.setOnClickListener(this);
+		View undoButton = findViewById(R.id.undo_button);
+		undoButton.setOnClickListener(this);
+		View pauseButton = findViewById(R.id.pause_button);
+		pauseButton.setOnClickListener(this);
+
+	}
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.restart_button:
+			Toast toast1 = Toast.makeText(getApplicationContext(),
+					"Restart button", Toast.LENGTH_SHORT);
+			toast1.show();
+			break;
+		case R.id.clear_button:
+			this.confirmClear();
+			break;
+		case R.id.undo_button:
+			Toast toast3 = Toast.makeText(getApplicationContext(),
+					"Undo button", Toast.LENGTH_SHORT);
+			toast3.show();
+			break;
+		case R.id.pause_button:
+			Toast toast = Toast.makeText(getApplicationContext(),
+					"Pause button", Toast.LENGTH_SHORT);
+			toast.show();
+			break;
+		}
+	}
+
+	// -------------Implement buttons--------------------
+
+	// -------------Clear Button
+	private void clearPuzzle() {
+		invalid_moves = 0;
+		puzzle = this.copyArray(originalPuzzle);
+		this.initialBlankTile(toPuzzleString(originalPuzzle));
+		this.puzzleView.invalidate();
 	}
 
 	// Get or set level and intro movies
@@ -137,6 +182,8 @@ public class Game extends Activity {
 			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
 			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
 					.getString(keyPredefined, easyPuzzle));
+			originalPuzzle = fromPuzzleString(getPreferences(MODE_PRIVATE)
+					.getString(keyOrigin, easyPuzzle));
 			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
 			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove,
 					0);
@@ -144,17 +191,20 @@ public class Game extends Activity {
 		case DIFFICULTY_HARD:
 			puz = hardPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_MEDIUM:
 			puz = mediumPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_EASY:
 		default:
 			puz = easyPuzzle;
 			getPredefinedTileFromPuzzle(puz, predefined);
+			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		}
@@ -218,7 +268,7 @@ public class Game extends Activity {
 
 	protected void finishGame() {
 		cont = false;
-//		stopwatch.stop();
+		// stopwatch.stop();
 		finish();
 	}
 
@@ -242,6 +292,8 @@ public class Game extends Activity {
 				.putString(key, toPuzzleString(puzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putString(keyPredefined, toPuzzleString(predefined)).commit();
+		getPreferences(MODE_PRIVATE).edit()
+				.putString(keyOrigin, toPuzzleString(originalPuzzle)).commit();
 		getPreferences(MODE_PRIVATE).edit().putInt(keyBlankTile, blank_tiles)
 				.commit();
 		getPreferences(MODE_PRIVATE).edit()
@@ -256,6 +308,7 @@ public class Game extends Activity {
 		stopwatch.stop();
 		outState.putString(key, toPuzzleString(puzzle));
 		outState.putString(keyPredefined, toPuzzleString(predefined));
+		outState.putString(keyOrigin, toPuzzleString(originalPuzzle));
 		outState.putInt(keyBlankTile, blank_tiles);
 		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
@@ -283,7 +336,8 @@ public class Game extends Activity {
 								// TODO Auto-generated method stub
 								openNewGameDialog();
 								dialog.cancel();
-
+								//bug here: crash when user cancel openNewGameDialog()
+								//wait to fix
 							}
 						});
 		builder.create();
@@ -415,15 +469,6 @@ public class Game extends Activity {
 		return false;
 	}
 
-	// Check finish-able property
-	public boolean isFinishable() {
-		// return FINISH_ABLE;
-		if (invalid_moves == 0) {
-			return true;
-		}
-		return false;
-	}
-
 	// Increase the number of valid moves
 	private void increaseInvalidMove() {
 		++invalid_moves;
@@ -462,4 +507,43 @@ public class Game extends Activity {
 			this.confirmExit();
 		}
 	}
+
+	// Store the original state of puzzle
+	private void storeOriginalState(String puz) {
+		this.originalPuzzle = fromPuzzleString(puz);
+	}
+
+	// Copy array
+	private int[] copyArray(int[] origin) {
+		int index = origin.length;
+		int[] tmp = new int[index];
+		for (int i = 0; i < index; i++) {
+			tmp[i] = origin[i];
+		}
+		return tmp;
+	}
+	//Confirm before clear all filled-in tiles
+	//Confirm exit
+    private void confirmClear()
+    {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setMessage(R.string.confirm_clear)
+    		   .setCancelable(false)
+    		   .setPositiveButton(R.string.exit_yes_label, new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface dialog, int id) {
+					// TODO Auto-generated method stub
+					clearPuzzle();
+				}
+			})
+			   .setNegativeButton(R.string.exit_no_label, new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface dialog, int id) {
+					// TODO Auto-generated method stub
+					dialog.cancel();
+				}
+			});
+    	builder.create();
+    	builder.show();
+    }
 }
