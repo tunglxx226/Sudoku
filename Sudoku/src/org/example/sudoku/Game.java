@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 public class Game extends Activity implements OnClickListener {
 	private static final String TAG = "Game.java";
@@ -32,9 +34,9 @@ public class Game extends Activity implements OnClickListener {
 	public static boolean cont = false;
 
 	// Game profile statistic
-	private int level;
-	private String introVideoPath;
+	public static int level;
 	public static boolean storymode = false;
+	public static StoryProfile storyProfile = new StoryProfile();
 
 	// Keys for onPause()
 	private static final String key = "puzzle";
@@ -42,6 +44,7 @@ public class Game extends Activity implements OnClickListener {
 	private static final String keyBlankTile = "blank_tiles";
 	private static final String keyInvalidMove = "invalid_moves";
 	private static final String keyOrigin = "originalPuzzle";
+	private static final String keyLevel = "level";
 
 	private final String easyPuzzle = "362581479914237856785694231"
 			+ "170462583823759614546813927" + "431925768657148392298376140";
@@ -68,7 +71,13 @@ public class Game extends Activity implements OnClickListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		
+		// Show video at the beginning
+		Intent i = new Intent(this, VideoviewActivity.class);
+        i.putExtra(VideoviewActivity.setTAG, 1);
+    	startActivity(i);
+    	//---------------------------------------------------
+    	
 		bundle = savedInstanceState;
 
 		Log.d(TAG, "onCreate");
@@ -76,20 +85,37 @@ public class Game extends Activity implements OnClickListener {
 		cont = false;
 		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
-		if (savedInstanceState != null) {
+		
+		if (savedInstanceState != null) 
+		{
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
 					.getString(keyPredefined));
 			originalPuzzle = fromPuzzleString(savedInstanceState
 					.getString(keyOrigin));
+
+			level = savedInstanceState.getInt(keyLevel);
+			
 			blank_tiles = savedInstanceState.getInt(keyBlankTile);
 			invalid_moves = savedInstanceState.getInt(keyInvalidMove);
 
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
+			if (storymode == true)
+			{	
+				storyProfile = new StoryProfile(level);
+			}
+			Log.d(TAG, "Level: " + Integer.toString(level));
 		} else {
+			
 			puzzle = getPuzzle(diff);
+			level = storyProfile.getLevel();
+			if (storymode == true)
+			{	
+				storyProfile = new StoryProfile(level);
+			}
 			stopwatch.start();
+			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
 
 		// -------------------------------------------------------------------------
@@ -156,16 +182,8 @@ public class Game extends Activity implements OnClickListener {
 		return level;
 	}
 
-	public String getIntro() {
-		return introVideoPath;
-	}
-
 	public void setLevel(int newLevel) {
 		level = newLevel;
-	}
-
-	public void setIntro(String videoPath) {
-		introVideoPath = videoPath;
 	}
 
 	// ...
@@ -268,7 +286,13 @@ public class Game extends Activity implements OnClickListener {
 
 	protected void finishGame() {
 		cont = false;
-		// stopwatch.stop();
+		stopwatch.stop();
+		if (storymode == true)
+		{
+			storyProfile.levelUp();
+			Intent i = new Intent(this, Game.class);
+			startActivity(i);
+		}
 		finish();
 	}
 
@@ -298,7 +322,9 @@ public class Game extends Activity implements OnClickListener {
 				.commit();
 		getPreferences(MODE_PRIVATE).edit()
 				.putInt(keyInvalidMove, invalid_moves).commit();
-
+		getPreferences(MODE_PRIVATE).edit()
+				.putInt(keyLevel, storyProfile.getLevel()).commit();
+		
 		getPreferences(MODE_PRIVATE).edit()
 				.putLong(keyTime, stopwatch.getElapsedTimeSecs()).commit();
 	}
@@ -312,6 +338,8 @@ public class Game extends Activity implements OnClickListener {
 		outState.putInt(keyBlankTile, blank_tiles);
 		outState.putInt(keyInvalidMove, invalid_moves);
 		outState.putLong(keyTime, stopwatch.getElapsedTime());
+		outState.putInt(keyLevel, storyProfile.getLevel());
+		
 		super.onSaveInstanceState(outState);
 	}
 
@@ -503,7 +531,33 @@ public class Game extends Activity implements OnClickListener {
 
 	// Check to see if the game is finish
 	public void checkFinishGame() {
-		if (this.isFinished()) {
+		if (this.isFinished()) 
+		{
+			if (storymode == true && storyProfile != null)
+			{
+				StringBuilder buf = new StringBuilder();
+				String message = getResources().getString(R.string.level)
+						+ " " + Integer.toString(level + 1)
+						+ " " + getResources().getString(R.string.complete);
+				
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(message)
+						.setCancelable(false)
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+
+									public void onClick(DialogInterface dialog, int id) {
+										storyProfile.levelUp();
+										Intent i = new Intent(Game.this, Game.class);
+						    			startActivity(i);
+						    			finish();
+									}
+								});
+				builder.create();
+				builder.show();
+    			return;
+			}
 			this.confirmExit();
 		}
 	}

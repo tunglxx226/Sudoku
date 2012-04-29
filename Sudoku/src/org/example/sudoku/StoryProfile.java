@@ -3,11 +3,20 @@ package org.example.sudoku;
 public class StoryProfile 
 {
 	private int level;
-	private String introVideoPath;
-	public StoryProfile(int newLevel, String newIntroVideoPath)
+	private String introVideoPath[];
+	
+	public StoryProfile()
 	{
+		this(0);
+	}
+	public StoryProfile(int newLevel)
+	{
+		/*introVideoPath[0] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
+		introVideoPath[1] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
+		introVideoPath[2] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
+		introVideoPath[3] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
+		introVideoPath[4] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;*/
 		level = newLevel;
-		introVideoPath = newIntroVideoPath;
 	}
 	public int getLevel()
 	{
@@ -16,7 +25,7 @@ public class StoryProfile
 	
 	public String getIntro()
 	{
-		return introVideoPath;
+		return introVideoPath[level];
 	}
 	
 	public void setLevel(int newLevel)
@@ -24,9 +33,9 @@ public class StoryProfile
 		level = newLevel;
 	}
 	
-	public void setIntro(String videoPath)
+	public void levelUp()
 	{
-		introVideoPath = videoPath;
+		level += 1;		
 	}
 
 }

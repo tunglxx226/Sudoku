@@ -46,6 +46,9 @@
 	
 	<string name="no_game_cont">No game to continue</string>
 	<string name="back_label">Back</string>
+	
+	<string name="level">Level</string>
+	<string name="complete">completed</string>
 
 	<string name="confirm_clear">Clear all filled-in tiles. Are you sure?</string>
 </resources>
