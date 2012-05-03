@@ -47,5 +47,13 @@
 	<string name="replay_label">Chơi lại</string>
 	<string name="level">Màn</string>
 	<string name="complete">đã hoàn thành.</string>
-
+	
+	<string name="hulijing1">BÌNH ĐỊA.</string>
+	<string name="hulijing2">MUÔN HÌNH VẠN TRẠNG.</string>
+	<string name="hulijing3">QUẪY ĐUÔI.</string>
+	
+	<string name="auco1">MẮT THẦN.</string>
+	<string name="auco2">CÁNH ĐỒNG BẤT TẬN.</string>
+	<string name="auco3">MẦM SỐNG.</string>
+	
 </resources>

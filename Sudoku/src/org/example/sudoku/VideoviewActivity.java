@@ -18,8 +18,10 @@ public class VideoviewActivity extends Activity implements OnCompletionListener,
 	public static final int NONE = -1;
 	public static final int SUDOKU = 0;
 	public static final int GAME = 1;
-	public static final String setTAG = "org.example.sudoku.VideoviewActivity.TAG";
-	public static int TAG;
+	public static final int SKILLS = 2;
+	
+	public static final String setVIDEO = "org.example.sudoku.VIDEO";
+	public static int VIDEO;
 	boolean buttonVisibility = false;
 	
     /** Called when the activity is first created. */
@@ -28,7 +30,8 @@ public class VideoviewActivity extends Activity implements OnCompletionListener,
     {
     	
         super.onCreate(savedInstanceState);
-        IntroVideo introVideo = new IntroVideo(TAG);
+        VIDEO = getIntent().getIntExtra(setVIDEO, -1);
+        IntroVideo introVideo = new IntroVideo(VIDEO);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.videoview);
