@@ -40,11 +40,11 @@ public class Sudoku extends Activity implements OnClickListener {
 		// ------------------------------------------
 
 		// Set up click listeners for all the buttons
-		View storyButton = findViewById(R.id.story_button);
-		storyButton.setOnClickListener(this);
 		continueButton = findViewById(R.id.continue_button);
 		continueButton.setOnClickListener(this);
 		this.setStateContinueButton(Game.cont);
+		View storyButton = findViewById(R.id.story_button);
+		storyButton.setOnClickListener(this);
 		View newButton = findViewById(R.id.new_button);
 		newButton.setOnClickListener(this);
 		View exitButton = findViewById(R.id.exit_button);
