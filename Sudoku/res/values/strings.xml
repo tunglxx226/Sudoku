@@ -50,6 +50,8 @@
 	<string name="complete">completed</string>
 
 	<string name="confirm_clear">Clear all filled-in tiles. Are you sure?</string>
+	<string name="confirm_restart">This will end the current game and start a new game. Are you sure?</string>
+	
 	<string name="hulijing1">BÌNH ĐỊA.</string>
 	<string name="hulijing2">MUÔN HÌNH VẠN TRẠNG.</string>
 	<string name="hulijing3">QUẪY ĐUÔI.</string>
