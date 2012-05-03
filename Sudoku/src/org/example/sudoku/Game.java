@@ -24,13 +24,12 @@ public class Game extends Activity implements OnClickListener {
 	private static final int BLANK = 0;
 	private static final int DEFINED = 1;
 
-	
 	// Opponents' IDs
 	Opponents opponent;
 	public static final int HULIJING = 0;
 	public static final int AU_CO = 1;
-	/** CAUTION: The opponents' IDs is also the index of the appropriate level**/
-	
+	/** CAUTION: The opponents' IDs is also the index of the appropriate level **/
+
 	private StopWatch stopwatch;
 	private static final String keyTime = "time";
 	private long atTime = 0;
@@ -107,12 +106,10 @@ public class Game extends Activity implements OnClickListener {
 
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
-			if (storymode == true) 
-			{
+			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
 				String[] skills = new String[3];
-				switch(level)
-				{
+				switch (level) {
 				case HULIJING:
 
 					skills[0] = getResources().getString(R.string.hulijing1);
@@ -120,7 +117,7 @@ public class Game extends Activity implements OnClickListener {
 					skills[2] = getResources().getString(R.string.hulijing3);
 					opponent = new Opponents(level, skills);
 					break;
-				
+
 				case AU_CO:
 
 					skills[0] = getResources().getString(R.string.auco1);
@@ -131,19 +128,18 @@ public class Game extends Activity implements OnClickListener {
 				}
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
-		} 
+		}
 		// if saveInstanceState == null
 		else {
 			puzzle = getPuzzle(diff);
 			level = storyProfile.getLevel();
-			if (storymode == true) 
-			{
+			if (storymode == true) {
 				String[] skills = new String[3];
 				skills[0] = getResources().getString(R.string.hulijing1);
 				skills[1] = getResources().getString(R.string.hulijing2);
 				skills[2] = getResources().getString(R.string.hulijing3);
 				opponent = new Opponents(0, skills);
-				
+
 				storyProfile = new StoryProfile(level);
 			}
 			stopwatch.start();
@@ -179,9 +175,7 @@ public class Game extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.restart_button:
-			Toast toast1 = Toast.makeText(getApplicationContext(),
-					"Restart button", Toast.LENGTH_SHORT);
-			toast1.show();
+			this.confirmRestart();
 			break;
 		case R.id.clear_button:
 			this.confirmClear();
@@ -207,6 +201,12 @@ public class Game extends Activity implements OnClickListener {
 		puzzle = this.copyArray(originalPuzzle);
 		this.initialBlankTile(toPuzzleString(originalPuzzle));
 		this.puzzleView.invalidate();
+	}
+	
+	//-------------Restart button
+	private void restartGame()
+	{
+		this.openNewGameDialog();
 	}
 
 	// Get or set level and intro movies
@@ -568,11 +568,10 @@ public class Game extends Activity implements OnClickListener {
 			if (storymode == true && storyProfile != null) {
 				String message = getResources().getString(R.string.level) + " "
 						+ Integer.toString(level + 1) + " "
-						+ getResources().getString(R.string.complete) + " with "
-						+ opponent.getName() + " "
-						+ opponent.getSkill(0) + " "
-						+ opponent.getSkill(1) + " "
-						+ opponent.getSkill(2) + " ";
+						+ getResources().getString(R.string.complete)
+						+ " with " + opponent.getName() + " "
+						+ opponent.getSkill(0) + " " + opponent.getSkill(1)
+						+ " " + opponent.getSkill(2) + " ";
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)
@@ -624,6 +623,31 @@ public class Game extends Activity implements OnClickListener {
 							public void onClick(DialogInterface dialog, int id) {
 								// TODO Auto-generated method stub
 								clearPuzzle();
+							}
+						})
+				.setNegativeButton(R.string.exit_no_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								dialog.cancel();
+							}
+						});
+		builder.create();
+		builder.show();
+	}
+
+	// Confirm before terminal current game and start another one game
+	private void confirmRestart() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.confirm_restart)
+				.setCancelable(false)
+				.setPositiveButton(R.string.exit_yes_label,
+						new DialogInterface.OnClickListener() {
+
+							public void onClick(DialogInterface dialog, int id) {
+								// TODO Auto-generated method stub
+								restartGame();
 							}
 						})
 				.setNegativeButton(R.string.exit_no_label,

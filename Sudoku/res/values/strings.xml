@@ -4,8 +4,7 @@
     <string name="app_name">Sudoku</string>
     <string name="main_title">Android Sudoku</string>
 	<string name="continue_label">Continue</string>
-	<string name="new_game_label">New Game</string>
-	<string name="about_label">About</string>
+	<string name="new_game_label">Arcade</string>
 	<string name="exit_label">Exit</string>
 	<string name="story_label">Story Mode</string>
 	<string name="congratscreen_title">Congratulation</string>
@@ -51,6 +50,8 @@
 	<string name="complete">completed</string>
 
 	<string name="confirm_clear">Clear all filled-in tiles. Are you sure?</string>
+	<string name="confirm_restart">This will end the current game and start a new game. Are you sure?</string>
+	
 	<string name="hulijing1">BÌNH ĐỊA.</string>
 	<string name="hulijing2">MUÔN HÌNH VẠN TRẠNG.</string>
 	<string name="hulijing3">QUẪY ĐUÔI.</string>
