@@ -24,6 +24,13 @@ public class Game extends Activity implements OnClickListener {
 	private static final int BLANK = 0;
 	private static final int DEFINED = 1;
 
+	
+	// Opponents' IDs
+	Opponents opponent;
+	public static final int HULIJING = 0;
+	public static final int AU_CO = 1;
+	/** CAUTION: The opponents' IDs is also the index of the appropriate level**/
+	
 	private StopWatch stopwatch;
 	private static final String keyTime = "time";
 	private long atTime = 0;
@@ -72,8 +79,8 @@ public class Game extends Activity implements OnClickListener {
 
 		// Show video at the beginning
 		if (storymode == true) {
-			Intent i = new Intent(this, VideoviewActivity.class);
-			i.putExtra(VideoviewActivity.setTAG, 1);
+			Intent i = new Intent(Game.this, VideoviewActivity.class);
+			i.putExtra(VideoviewActivity.setVIDEO, VideoviewActivity.GAME);
 			startActivity(i);
 		}
 		// ---------------------------------------------------
@@ -100,14 +107,43 @@ public class Game extends Activity implements OnClickListener {
 
 			atTime = bundle.getLong(keyTime);
 			stopwatch.startAt(atTime);
-			if (storymode == true) {
+			if (storymode == true) 
+			{
 				storyProfile = new StoryProfile(level);
+				String[] skills = new String[3];
+				switch(level)
+				{
+				case HULIJING:
+
+					skills[0] = getResources().getString(R.string.hulijing1);
+					skills[1] = getResources().getString(R.string.hulijing2);
+					skills[2] = getResources().getString(R.string.hulijing3);
+					opponent = new Opponents(level, skills);
+					break;
+				
+				case AU_CO:
+
+					skills[0] = getResources().getString(R.string.auco1);
+					skills[1] = getResources().getString(R.string.auco2);
+					skills[2] = getResources().getString(R.string.auco3);
+					opponent = new Opponents(level, skills);
+					break;
+				}
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
-		} else {
+		} 
+		// if saveInstanceState == null
+		else {
 			puzzle = getPuzzle(diff);
 			level = storyProfile.getLevel();
-			if (storymode == true) {
+			if (storymode == true) 
+			{
+				String[] skills = new String[3];
+				skills[0] = getResources().getString(R.string.hulijing1);
+				skills[1] = getResources().getString(R.string.hulijing2);
+				skills[2] = getResources().getString(R.string.hulijing3);
+				opponent = new Opponents(0, skills);
+				
 				storyProfile = new StoryProfile(level);
 			}
 			stopwatch.start();
@@ -285,6 +321,7 @@ public class Game extends Activity implements OnClickListener {
 		stopwatch.stop();
 		if (storymode == true) {
 			storyProfile.levelUp();
+			level = storyProfile.getLevel();
 			Intent i = new Intent(this, Game.class);
 			startActivity(i);
 		}
@@ -531,7 +568,11 @@ public class Game extends Activity implements OnClickListener {
 			if (storymode == true && storyProfile != null) {
 				String message = getResources().getString(R.string.level) + " "
 						+ Integer.toString(level + 1) + " "
-						+ getResources().getString(R.string.complete);
+						+ getResources().getString(R.string.complete) + " with "
+						+ opponent.getName() + " "
+						+ opponent.getSkill(0) + " "
+						+ opponent.getSkill(1) + " "
+						+ opponent.getSkill(2) + " ";
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)

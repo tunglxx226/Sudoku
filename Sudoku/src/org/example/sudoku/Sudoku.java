@@ -32,8 +32,8 @@ public class Sudoku extends Activity implements OnClickListener{
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         
         // Show video at the beginning
-        Intent i = new Intent(this, VideoviewActivity.class);
-        i.putExtra(VideoviewActivity.setTAG, 0);
+        Intent i = new Intent(Sudoku.this, VideoviewActivity.class);
+        i.putExtra(VideoviewActivity.setVIDEO, VideoviewActivity.SUDOKU);
     	startActivity(i);
     	//------------------------------------------
 	       
