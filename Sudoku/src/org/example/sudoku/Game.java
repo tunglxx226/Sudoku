@@ -77,7 +77,8 @@ public class Game extends Activity implements OnClickListener {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		// Show video at the beginning
-		if (storymode == true) {
+		if (storymode == true) 
+		{
 			Intent i = new Intent(Game.this, VideoviewActivity.class);
 			i.putExtra(VideoviewActivity.setVIDEO, VideoviewActivity.GAME);
 			startActivity(i);
@@ -206,7 +207,15 @@ public class Game extends Activity implements OnClickListener {
 	//-------------Restart button
 	private void restartGame()
 	{
-		this.openNewGameDialog();
+		if (storymode == false)
+		{
+			this.openNewGameDialog();
+		}
+		else
+		{
+			this.finishGame(true);
+		}
+		
 	}
 
 	// Get or set level and intro movies
@@ -316,11 +325,15 @@ public class Game extends Activity implements OnClickListener {
 		}
 	}
 
-	protected void finishGame() {
+	protected void finishGame(boolean isRestart) {
 		cont = false;
 		stopwatch.stop();
-		if (storymode == true) {
-			storyProfile.levelUp();
+		if (storymode == true) 
+		{
+			if (!isRestart)
+			{
+				storyProfile.levelUp();
+			}
 			level = storyProfile.getLevel();
 			Intent i = new Intent(this, Game.class);
 			startActivity(i);
@@ -386,7 +399,7 @@ public class Game extends Activity implements OnClickListener {
 
 							public void onClick(DialogInterface dialog, int id) {
 								// TODO Auto-generated method stub
-								Game.this.finishGame();
+								Game.this.finishGame(false);
 							}
 						})
 				.setNegativeButton(R.string.replay_label,
@@ -412,7 +425,7 @@ public class Game extends Activity implements OnClickListener {
 						new DialogInterface.OnClickListener() {
 							public void onClick(
 									DialogInterface dialoginterface, int i) {
-								Game.this.finishGame();
+								Game.this.finishGame(false);
 								startGame(i);
 
 							}

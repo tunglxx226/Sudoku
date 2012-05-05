@@ -34,6 +34,10 @@ public class IntroVideo
 				path = "android.resource://" + "org.example.sudoku" + "/" 
 				        + R.raw.intro;
 				break;
+			default:
+				path = "android.resource://" + "org.example.sudoku" + "/" 
+				        + R.raw.intro;
+				break;
 			}
 			
 			break;
