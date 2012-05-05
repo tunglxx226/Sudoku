@@ -92,7 +92,7 @@ public class Game extends Activity implements OnClickListener {
 		cont = false;
 		stopwatch = new StopWatch();
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
-
+		String[] skills = new String[3];
 		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
 			predefined = fromPuzzleString(savedInstanceState
@@ -109,24 +109,6 @@ public class Game extends Activity implements OnClickListener {
 			stopwatch.startAt(atTime);
 			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
-				String[] skills = new String[3];
-				switch (level) {
-				case HULIJING:
-
-					skills[0] = getResources().getString(R.string.hulijing1);
-					skills[1] = getResources().getString(R.string.hulijing2);
-					skills[2] = getResources().getString(R.string.hulijing3);
-					opponent = new Opponents(level, skills);
-					break;
-
-				case AU_CO:
-
-					skills[0] = getResources().getString(R.string.auco1);
-					skills[1] = getResources().getString(R.string.auco2);
-					skills[2] = getResources().getString(R.string.auco3);
-					opponent = new Opponents(level, skills);
-					break;
-				}
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
@@ -135,17 +117,46 @@ public class Game extends Activity implements OnClickListener {
 			puzzle = getPuzzle(diff);
 			level = storyProfile.getLevel();
 			if (storymode == true) {
-				String[] skills = new String[3];
-				skills[0] = getResources().getString(R.string.hulijing1);
-				skills[1] = getResources().getString(R.string.hulijing2);
-				skills[2] = getResources().getString(R.string.hulijing3);
-				opponent = new Opponents(0, skills);
-
 				storyProfile = new StoryProfile(level);
 			}
 			stopwatch.start();
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
+		
+		// Set up story mode
+		if (storymode == true) 
+		{
+			storyProfile = new StoryProfile(level);
+			
+			switch (level) {
+			case HULIJING:
+	
+				skills[0] = getResources().getString(R.string.hulijing1);
+				skills[1] = getResources().getString(R.string.hulijing2);
+				skills[2] = getResources().getString(R.string.hulijing3);
+				
+				break;
+	
+			case AU_CO:
+	
+				skills[0] = getResources().getString(R.string.auco1);
+				skills[1] = getResources().getString(R.string.auco2);
+				skills[2] = getResources().getString(R.string.auco3);
+				
+				break;
+				
+			default:
+				// Clone skills, need to re define when another opponent is created
+				skills[0] = getResources().getString(R.string.auco1);
+				skills[1] = getResources().getString(R.string.auco2);
+				skills[2] = getResources().getString(R.string.auco3);
+				
+				break;
+				
+			}
+			opponent = new Opponents(level, skills);
+		}
+		//--------------------------------------------------------
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView

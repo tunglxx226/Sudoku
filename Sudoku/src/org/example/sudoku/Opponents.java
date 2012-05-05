@@ -6,11 +6,6 @@ public class Opponents
 	 private String name;
 	 private int ID;
 	 
-	 public Opponents()
-	 {
-		 
-	 }
-	 
 	 public Opponents(int ID, String[] skillsName)
 	 {
 		 switch(ID)
