@@ -128,33 +128,7 @@ public class Game extends Activity implements OnClickListener {
 		{
 			storyProfile = new StoryProfile(level);
 			
-			switch (level) {
-			case HULIJING:
-	
-				skills[0] = getResources().getString(R.string.hulijing1);
-				skills[1] = getResources().getString(R.string.hulijing2);
-				skills[2] = getResources().getString(R.string.hulijing3);
-				
-				break;
-	
-			case AU_CO:
-	
-				skills[0] = getResources().getString(R.string.auco1);
-				skills[1] = getResources().getString(R.string.auco2);
-				skills[2] = getResources().getString(R.string.auco3);
-				
-				break;
-				
-			default:
-				// Clone skills, need to re define when another opponent is created
-				skills[0] = getResources().getString(R.string.auco1);
-				skills[1] = getResources().getString(R.string.auco2);
-				skills[2] = getResources().getString(R.string.auco3);
-				
-				break;
-				
-			}
-			opponent = new Opponents(level, skills);
+			opponent = new Opponents(level);
 		}
 		//--------------------------------------------------------
 
@@ -594,8 +568,8 @@ public class Game extends Activity implements OnClickListener {
 						+ Integer.toString(level + 1) + " "
 						+ getResources().getString(R.string.complete)
 						+ " with " + opponent.getName() + " "
-						+ opponent.getSkill(0) + " " + opponent.getSkill(1)
-						+ " " + opponent.getSkill(2) + " ";
+						+ opponent.getSkill(0).getName() + " " + opponent.getSkill(1).getName()
+						+ " " + opponent.getSkill(2).getName() + " ";
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)
