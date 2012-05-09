@@ -158,7 +158,7 @@ public class PuzzleView extends View {
 	}
 
 	public void setSelectedTile(int X, int Y, int tile) {
-		game.setTile(X, Y, tile);
+		game.setTile(X, Y, tile, game.storymode);
 		game.checkFinishGame();
 		invalidate();
 		// any further code handling invalid input number goes here

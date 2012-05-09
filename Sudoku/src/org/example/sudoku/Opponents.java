@@ -7,9 +7,9 @@ public class Opponents
 	public static final String TAG = "OPPONENTS";
 	// Skills' names
 	//HULIJING:
-	public static final String hulijing1 = "BÌNH ĐỊA";
+	public static final String hulijing1 = "QUẪY ĐUÔI.";
 	public static final String hulijing2 = "MUÔN HÌNH VẠN TRẠNG.";
-	public static final String hulijing3 = "QUẪY ĐUÔI.";
+	public static final String hulijing3 = "BÌNH ĐỊA.";
 	//--------------------------------------------------
 	//AUCO:
 	public static final String auco1 = "MẮT THẦN.";

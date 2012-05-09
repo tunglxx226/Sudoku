@@ -11,7 +11,16 @@
 	    android:layout_height="0dip"	    
 	    android:orientation="vertical"
 	    android:layout_weight="10"
-	    android:id="@+id/linearlayouttop">	
+	    android:id="@+id/linearlayouttop">
+	    <TextView
+	        android:layout_width="fill_parent"
+	    	android:layout_height="fill_parent"	    
+	    	android:orientation="vertical"
+	    	android:id="@+id/stopwatch"
+	    	android:gravity="center"
+	    	android:textSize="15sp">
+	        
+	    </TextView>	
 	    
 	</LinearLayout>
 
@@ -34,7 +43,7 @@
 		android:orientation="horizontal"
 		android:layout_height="0dip"
 		android:layout_width="fill_parent"
-		
+		android:gravity="center_horizontal"
 		android:layout_weight="20"
 		android:padding="10dp"
 		android:id="@+id/linearlayoutbottom"
