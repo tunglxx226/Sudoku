@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -304,10 +305,12 @@ public class Game extends Activity implements OnClickListener {
 	//      skills == false: skill-generate (automatic)
 	public void setTile(int x, int y, int value, boolean skills) {
 		if (puzzle[y * 9 + x] == 0) {
-			this.decreaseBlankTile();
+			if (value != 0)
+				this.decreaseBlankTile();
 			if (!this.checkValidMove(x, y, value)) {
 				this.increaseInvalidMove();
 			}
+			
 		} else // Already filled before
 		{
 			// On user update move
@@ -322,12 +325,20 @@ public class Game extends Activity implements OnClickListener {
 					this.increaseInvalidMove();
 				}
 			}
+			if (value == 0)
+			{
+				this.increaseBlankTile();
+			}
 		}
 		puzzle[y * 9 + x] = value;
 		if (storymode == true && skills == true)
 		{
 			skillsGenerate();
 		}
+		Log.d(TAG, "invalid moves: " + Integer.toString(invalid_moves)
+					+ " + blank tiles: " + Integer.toString(blank_tiles));
+		Toast.makeText(getApplicationContext(), "invalid moves: " + Integer.toString(invalid_moves)
+					+ " + blank tiles: " + Integer.toString(blank_tiles), Toast.LENGTH_SHORT).show();
 	}
 
 	protected String getTileString(int x, int y) {
@@ -572,7 +583,12 @@ public class Game extends Activity implements OnClickListener {
 	private void decreaseBlankTile() {
 		--blank_tiles;
 	}
-
+	
+	// Increase the number of blank tiles
+	private void increaseBlankTile(){
+		++blank_tiles;
+	}
+	
 	// Set the number of blank tiles
 	private void setBlankTile(int num) {
 		blank_tiles = num;
@@ -784,6 +800,8 @@ public class Game extends Activity implements OnClickListener {
 		}
 		else if (opponent.getSkill(i).getName() == hulijing3)
 		{
+			puzzleView.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
 			clearPuzzle();
 			return;
 		}
