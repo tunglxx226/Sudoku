@@ -1,5 +1,9 @@
 package org.example.sudoku;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -29,24 +33,29 @@ public class Game extends Activity implements OnClickListener {
 	private static final int BLANK = 0;
 	private static final int DEFINED = 1;
 
+	// Quiz
+	private InputStream is;
+	BufferedReader bufferedReader;
+	int fileLength;
+	private Quiz quiz;
+
 	// Opponents' IDs
 	Opponents opponent;
 	public static final int HULIJING = 0;
 	public static final int AU_CO = 1;
 	/** CAUTION: The opponents' IDs is also the index of the appropriate level **/
 	// Skills' names
-	//HULIJING:
-		public static final String hulijing1 = "QUẪY ĐUÔI.";
-		public static final String hulijing2 = "MUÔN HÌNH VẠN TRẠNG.";
-		public static final String hulijing3 = "BÌNH ĐỊA.";
-	//--------------------------------------------------
-	//AUCO:
+	// HULIJING:
+	public static final String hulijing1 = "QUẪY ĐUÔI.";
+	public static final String hulijing2 = "MUÔN HÌNH VẠN TRẠNG.";
+	public static final String hulijing3 = "BÌNH ĐỊA.";
+	// --------------------------------------------------
+	// AUCO:
 	public static final String auco1 = "MẮT THẦN.";
 	public static final String auco2 = "CÁNH ĐỒNG BẤT TẬN.";
 	public static final String auco3 = "MẦM SỐNG.";
-	//------------------------------------------------
-	
-	
+	// ------------------------------------------------
+
 	private StopWatch stopwatch = new StopWatch();
 	private static final String keyTime = "time";
 	private long atTime = 0;
@@ -93,9 +102,26 @@ public class Game extends Activity implements OnClickListener {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+		// Input Stream:
+		is = getResources().openRawResource(R.raw.quiz);
+		bufferedReader = new BufferedReader(new InputStreamReader(is));
+		String line[] = new String[100];
+		try {
+			int i = 0;
+			while (bufferedReader.readLine() != null) {
+				line[i] = bufferedReader.readLine();
+				i++;
+			}
+			fileLength = i;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Random rand = new Random();
+		quiz = new Quiz(line[rand.nextInt(fileLength - 1)]);
 		// Show video at the beginning
-		if (storymode == true) 
-		{
+		if (storymode == true) {
 			Intent i = new Intent(Game.this, VideoviewActivity.class);
 			i.putExtra(VideoviewActivity.setVIDEO, VideoviewActivity.GAME);
 			startActivity(i);
@@ -108,7 +134,7 @@ public class Game extends Activity implements OnClickListener {
 
 		cont = false;
 		int diff = getIntent().getIntExtra(KEY_DIFFICULTY, DIFFICULTY_EASY);
-		
+
 		// When continue:
 		if (savedInstanceState != null) {
 			puzzle = fromPuzzleString(savedInstanceState.getString(key));
@@ -139,15 +165,14 @@ public class Game extends Activity implements OnClickListener {
 			stopwatch.start();
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
-		
+
 		// Set up story mode
-		if (storymode == true) 
-		{
+		if (storymode == true) {
 			storyProfile = new StoryProfile(level);
-			
+
 			opponent = new Opponents(level);
 		}
-		//--------------------------------------------------------
+		// --------------------------------------------------------
 
 		// -------------------------------------------------------------------------
 		// If game is not finished then continue loading puzzleView
@@ -175,7 +200,6 @@ public class Game extends Activity implements OnClickListener {
 		TextView stopwatchView = (TextView) findViewById(R.id.stopwatch);
 		stopwatchView.setText(getElapsedTime());
 		Log.d(TAG, getElapsedTime());
-		
 
 	}
 
@@ -209,21 +233,17 @@ public class Game extends Activity implements OnClickListener {
 		this.initialBlankTile(toPuzzleString(originalPuzzle));
 		this.puzzleView.invalidate();
 	}
-	
-	//-------------Restart button
-	private void restartGame()
-	{
-		if (storymode == false)
-		{
+
+	// -------------Restart button
+	private void restartGame() {
+		if (storymode == false) {
 			this.openNewGameDialog();
 			stopwatch = new StopWatch();
-		}
-		else
-		{
+		} else {
 			this.finishGame(true);
 			stopwatch = new StopWatch();
 		}
-		
+
 	}
 
 	// Get or set level and intro movies
@@ -256,20 +276,23 @@ public class Game extends Activity implements OnClickListener {
 					0);
 			break;
 		case DIFFICULTY_HARD:
-			puz = hardPuzzle;
+			quiz.preparation(DIFFICULTY_HARD);
+			puz = quiz.getQuiz();
 			getPredefinedTileFromPuzzle(puz, predefined);
 			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_MEDIUM:
-			puz = mediumPuzzle;
+			quiz.preparation(DIFFICULTY_MEDIUM);
+			puz = quiz.getQuiz();
 			getPredefinedTileFromPuzzle(puz, predefined);
 			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
 			break;
 		case DIFFICULTY_EASY:
 		default:
-			puz = easyPuzzle;
+			quiz.preparation(DIFFICULTY_EASY);
+			puz = quiz.getQuiz();
 			getPredefinedTileFromPuzzle(puz, predefined);
 			this.storeOriginalState(puz);
 			this.initialBlankTile(puz);
@@ -300,9 +323,10 @@ public class Game extends Activity implements OnClickListener {
 
 	// Update to decrease the number of blank tiles if the current tile is blank
 	// Also check for valid move right inside this function
-	// NEW: boolean skills added: to consider if this is skill-generate action or user-generate action
-	//      skills == true: user-generate
-	//      skills == false: skill-generate (automatic)
+	// NEW: boolean skills added: to consider if this is skill-generate action
+	// or user-generate action
+	// skills == true: user-generate
+	// skills == false: skill-generate (automatic)
 	public void setTile(int x, int y, int value, boolean skills) {
 		if (puzzle[y * 9 + x] == 0) {
 			if (value != 0)
@@ -310,7 +334,7 @@ public class Game extends Activity implements OnClickListener {
 			if (!this.checkValidMove(x, y, value)) {
 				this.increaseInvalidMove();
 			}
-			
+
 		} else // Already filled before
 		{
 			// On user update move
@@ -325,20 +349,21 @@ public class Game extends Activity implements OnClickListener {
 					this.increaseInvalidMove();
 				}
 			}
-			if (value == 0)
-			{
+			if (value == 0) {
 				this.increaseBlankTile();
 			}
 		}
 		puzzle[y * 9 + x] = value;
-		if (storymode == true && skills == true)
-		{
+		if (storymode == true && skills == true) {
 			skillsGenerate();
 		}
 		Log.d(TAG, "invalid moves: " + Integer.toString(invalid_moves)
-					+ " + blank tiles: " + Integer.toString(blank_tiles));
-		Toast.makeText(getApplicationContext(), "invalid moves: " + Integer.toString(invalid_moves)
-					+ " + blank tiles: " + Integer.toString(blank_tiles), Toast.LENGTH_SHORT).show();
+				+ " + blank tiles: " + Integer.toString(blank_tiles));
+		Toast.makeText(
+				getApplicationContext(),
+				"invalid moves: " + Integer.toString(invalid_moves)
+						+ " + blank tiles: " + Integer.toString(blank_tiles),
+				Toast.LENGTH_SHORT).show();
 	}
 
 	protected String getTileString(int x, int y) {
@@ -353,10 +378,8 @@ public class Game extends Activity implements OnClickListener {
 	protected void finishGame(boolean isRestart) {
 		cont = false;
 		stopwatch.stop();
-		if (storymode == true) 
-		{
-			if (!isRestart)
-			{
+		if (storymode == true) {
+			if (!isRestart) {
 				storyProfile.levelUp();
 			}
 			level = storyProfile.getLevel();
@@ -583,12 +606,12 @@ public class Game extends Activity implements OnClickListener {
 	private void decreaseBlankTile() {
 		--blank_tiles;
 	}
-	
+
 	// Increase the number of blank tiles
-	private void increaseBlankTile(){
+	private void increaseBlankTile() {
 		++blank_tiles;
 	}
-	
+
 	// Set the number of blank tiles
 	private void setBlankTile(int num) {
 		blank_tiles = num;
@@ -614,8 +637,9 @@ public class Game extends Activity implements OnClickListener {
 						+ Integer.toString(level + 1) + " "
 						+ getResources().getString(R.string.complete)
 						+ " with " + opponent.getName() + " "
-						+ opponent.getSkill(0).getName() + " " + opponent.getSkill(1).getName()
-						+ " " + opponent.getSkill(2).getName() + " ";
+						+ opponent.getSkill(0).getName() + " "
+						+ opponent.getSkill(1).getName() + " "
+						+ opponent.getSkill(2).getName() + " ";
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(message)
@@ -705,121 +729,107 @@ public class Game extends Activity implements OnClickListener {
 		builder.create();
 		builder.show();
 	}
-	
+
 	// Random skills generate mechanism
-	private void skillsGenerate()
-	{
+	private void skillsGenerate() {
 		Random srand = new Random();
 		// Skill or not.
 		int i = srand.nextInt(100);
-		/** CAUTION: for skill[], the index 0 must be the one with the least effect**/
-		if (i < 5)
-		{
-			Toast toast = Toast.makeText(getApplicationContext(), opponent.getSkill(2).getName(), Toast.LENGTH_SHORT);
+		/**
+		 * CAUTION: for skill[], the index 0 must be the one with the least
+		 * effect
+		 **/
+		if (i < 5) {
+			Toast toast = Toast.makeText(getApplicationContext(), opponent
+					.getSkill(2).getName(), Toast.LENGTH_SHORT);
 			skillEffects(2);
 			toast.show();
-		}
-		else if (i < 15)
-		{
-			Toast toast = Toast.makeText(getApplicationContext(), opponent.getSkill(1).getName(), Toast.LENGTH_SHORT);
+		} else if (i < 15) {
+			Toast toast = Toast.makeText(getApplicationContext(), opponent
+					.getSkill(1).getName(), Toast.LENGTH_SHORT);
 			skillEffects(1);
 			toast.show();
 		}
-		
-		else if (i < 30)
-		{
-			Toast toast = Toast.makeText(getApplicationContext(), opponent.getSkill(0).getName(), Toast.LENGTH_SHORT);
+
+		else if (i < 30) {
+			Toast toast = Toast.makeText(getApplicationContext(), opponent
+					.getSkill(0).getName(), Toast.LENGTH_SHORT);
 			skillEffects(0);
 			toast.show();
-		}
-		else
-		{
-			Toast toast = Toast.makeText(getApplicationContext(), "No Skill invoked", Toast.LENGTH_SHORT);
+		} else {
+			Toast toast = Toast.makeText(getApplicationContext(),
+					"No Skill invoked", Toast.LENGTH_SHORT);
 			toast.show();
 		}
 	}
-	
+
 	// Automatically delete a number of random tiles of the puzzle:
-	private void autoDelRand()
-	{
-		
+	private void autoDelRand() {
+
 		int randX = 0;
 		int randY = 0;
-		
+
 		SecureRandom srand = new SecureRandom();
 		int[] predefined = new int[81];
 		// Get the tile that are not blank (predefined by game)
 		predefined = getPredefinedTileFromPuzzle();
-		
-		while(predefined[randY * 9 + randX] != 0)
-		{
+
+		while (predefined[randY * 9 + randX] != 0) {
 			randX = srand.nextInt(9);
 			randY = srand.nextInt(9);
 			continue;
 		}
-		Toast.makeText(getApplicationContext(), Integer.toString(randX) + Integer.toString(randY), Toast.LENGTH_SHORT).show();
-		setTile(randX, randY, 0, false);			
-		
+		Toast.makeText(getApplicationContext(),
+				Integer.toString(randX) + Integer.toString(randY),
+				Toast.LENGTH_SHORT).show();
+		setTile(randX, randY, 0, false);
+
 	}
-	
+
 	// Automatically change a number of random tiles of the puzzle:
-	private void autoChangeRand()
-	{
-		
+	private void autoChangeRand() {
+
 		int randX = 0;
 		int randY = 0;
-		
+
 		SecureRandom srand = new SecureRandom();
 		int[] predefined = new int[81];
 		// Get the tile that are not blank (predefined by game)
 		predefined = getPredefinedTileFromPuzzle();
-		
-		while(predefined[randY * 9 + randX] != 0)
-		{
+
+		while (predefined[randY * 9 + randX] != 0) {
 			randX = srand.nextInt(9);
 			randY = srand.nextInt(9);
 			continue;
 		}
 		int randValue = srand.nextInt(9);
-		Toast.makeText(getApplicationContext(), Integer.toString(randX) + Integer.toString(randY), Toast.LENGTH_SHORT).show();
-		setTile(randX, randY, randValue, false);			
+		Toast.makeText(getApplicationContext(),
+				Integer.toString(randX) + Integer.toString(randY),
+				Toast.LENGTH_SHORT).show();
+		setTile(randX, randY, randValue, false);
 	}
-	
+
 	// Skills take effects:
-	private void skillEffects(int i)
-	{
-		if (opponent.getSkill(i).getName() == hulijing1)
-		{
+	private void skillEffects(int i) {
+		if (opponent.getSkill(i).getName() == hulijing1) {
 			autoDelRand();
 			return;
-		}
-		else if (opponent.getSkill(i).getName() == hulijing2)
-		{
+		} else if (opponent.getSkill(i).getName() == hulijing2) {
 			autoChangeRand();
 			return;
-		}
-		else if (opponent.getSkill(i).getName() == hulijing3)
-		{
+		} else if (opponent.getSkill(i).getName() == hulijing3) {
 			puzzleView.startAnimation(AnimationUtils.loadAnimation(this,
 					R.anim.shake));
 			clearPuzzle();
 			return;
-		}
-		else if (opponent.getSkill(i).getName() == auco1)
-		{
+		} else if (opponent.getSkill(i).getName() == auco1) {
 			return;
-		}
-		else if (opponent.getSkill(i).getName() == auco2)
-		{
+		} else if (opponent.getSkill(i).getName() == auco2) {
 			return;
-		}
-		else if (opponent.getSkill(i).getName() == auco3)
-		{
+		} else if (opponent.getSkill(i).getName() == auco3) {
 			restartGame();
 			return;
 		}
 	}
-	
+
 }
-
-
