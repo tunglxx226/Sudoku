@@ -1,11 +1,5 @@
 package org.example.sudoku;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Random;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

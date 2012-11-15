@@ -76,12 +76,7 @@ public class Game extends Activity implements OnClickListener {
 	private static final String keyOrigin = "originalPuzzle";
 	private static final String keyLevel = "level";
 
-	private final String easyPuzzle = "362581479914237856785694231"
-			+ "170462583823759614546813927" + "431925768657148392298376140";
-	private final String mediumPuzzle = "650000070000506000014000005"
-			+ "007009000002314700000700800" + "500000630000201000030000097";
-	private final String hardPuzzle = "009000000080605020501078000"
-			+ "000000700706040102004000000" + "000720903090301080000000600";
+	
 
 	private int puzzle[] = new int[9 * 9];
 	// Used to store the state of the original puzzle
@@ -266,11 +261,12 @@ public class Game extends Activity implements OnClickListener {
 		// TODO: Continue last game
 		switch (diff) {
 		case DIFFICULTY_CONTINUE:
-			puz = getPreferences(MODE_PRIVATE).getString(key, easyPuzzle);
+			quiz.preparation(DIFFICULTY_EASY);
+			puz = getPreferences(MODE_PRIVATE).getString(key, quiz.getQuiz());
 			predefined = fromPuzzleString(getPreferences(MODE_PRIVATE)
-					.getString(keyPredefined, easyPuzzle));
+					.getString(keyPredefined, quiz.getQuiz()));
 			originalPuzzle = fromPuzzleString(getPreferences(MODE_PRIVATE)
-					.getString(keyOrigin, easyPuzzle));
+					.getString(keyOrigin, quiz.getQuiz()));
 			blank_tiles = getPreferences(MODE_PRIVATE).getInt(keyBlankTile, 0);
 			invalid_moves = getPreferences(MODE_PRIVATE).getInt(keyInvalidMove,
 					0);

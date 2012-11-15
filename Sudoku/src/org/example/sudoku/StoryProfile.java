@@ -4,6 +4,7 @@ public class StoryProfile
 {
 	private int level;
 	private String introVideoPath[];
+	public static int levelAchieved;
 	
 	public StoryProfile()
 	{
@@ -16,6 +17,7 @@ public class StoryProfile
 		introVideoPath[2] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
 		introVideoPath[3] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;
 		introVideoPath[4] = "android.resource://" + "org.example.sudoku" + "/" + R.raw.intro;*/
+		
 		level = newLevel;
 	}
 	public int getLevel()
@@ -37,5 +39,4 @@ public class StoryProfile
 	{
 		level += 1;		
 	}
-
 }
