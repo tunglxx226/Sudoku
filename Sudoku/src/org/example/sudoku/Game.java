@@ -734,19 +734,19 @@ public class Game extends Activity implements OnClickListener {
 		 * CAUTION: for skill[], the index 0 must be the one with the least
 		 * effect
 		 **/
-		if (i < 5) {
+		if (i < 3) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(2).getName(), Toast.LENGTH_SHORT);
 			skillEffects(2);
 			toast.show();
-		} else if (i < 15) {
+		} else if (i < 13) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(1).getName(), Toast.LENGTH_SHORT);
 			skillEffects(1);
 			toast.show();
 		}
 
-		else if (i < 30) {
+		else if (i < 25) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(0).getName(), Toast.LENGTH_SHORT);
 			skillEffects(0);
