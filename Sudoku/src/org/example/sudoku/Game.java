@@ -25,6 +25,7 @@ import android.widget.Toast;
 public class Game extends Activity implements OnClickListener {
 	private static final String TAG = "Game.java";
 	public static final String KEY_DIFFICULTY = "org.example.sudoku.difficulty";
+
 	public static final int DIFFICULTY_EASY = 0;
 	public static final int DIFFICULTY_MEDIUM = 1;
 	public static final int DIFFICULTY_HARD = 2;
@@ -75,8 +76,6 @@ public class Game extends Activity implements OnClickListener {
 	private static final String keyInvalidMove = "invalid_moves";
 	private static final String keyOrigin = "originalPuzzle";
 	private static final String keyLevel = "level";
-
-	
 
 	private int puzzle[] = new int[9 * 9];
 	// Used to store the state of the original puzzle
@@ -808,14 +807,19 @@ public class Game extends Activity implements OnClickListener {
 	// Skills take effects:
 	private void skillEffects(int i) {
 		if (opponent.getSkill(i).getName() == hulijing1) {
+			puzzleView.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
 			autoDelRand();
 			return;
 		} else if (opponent.getSkill(i).getName() == hulijing2) {
+			puzzleView.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.fadein));
+
 			autoChangeRand();
 			return;
 		} else if (opponent.getSkill(i).getName() == hulijing3) {
 			puzzleView.startAnimation(AnimationUtils.loadAnimation(this,
-					R.anim.shake));
+					R.anim.blink));
 			clearPuzzle();
 			return;
 		} else if (opponent.getSkill(i).getName() == auco1) {
