@@ -350,7 +350,9 @@ public class Game extends Activity implements OnClickListener {
 		}
 		puzzle[y * 9 + x] = value;
 		if (storymode == true && skills == true) {
-			skillsGenerate();
+			int[] skillRate = new int[3];
+			skillRate = opponent.getSkillRate();
+			skillsGenerate(skillRate[2], skillRate[1], skillRate[0]);
 		}
 		Log.d(TAG, "invalid moves: " + Integer.toString(invalid_moves)
 				+ " + blank tiles: " + Integer.toString(blank_tiles));
@@ -726,7 +728,7 @@ public class Game extends Activity implements OnClickListener {
 	}
 
 	// Random skills generate mechanism
-	private void skillsGenerate() {
+	private void skillsGenerate(int rateSkill2, int rateSkill1, int rateSkill0) {
 		Random srand = new Random();
 		// Skill or not.
 		int i = srand.nextInt(100);
@@ -734,19 +736,19 @@ public class Game extends Activity implements OnClickListener {
 		 * CAUTION: for skill[], the index 0 must be the one with the least
 		 * effect
 		 **/
-		if (i < 3) {
+		if (i < rateSkill2) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(2).getName(), Toast.LENGTH_SHORT);
 			skillEffects(2);
 			toast.show();
-		} else if (i < 13) {
+		} else if (i < rateSkill1) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(1).getName(), Toast.LENGTH_SHORT);
 			skillEffects(1);
 			toast.show();
 		}
 
-		else if (i < 25) {
+		else if (i < rateSkill0) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(0).getName(), Toast.LENGTH_SHORT);
 			skillEffects(0);

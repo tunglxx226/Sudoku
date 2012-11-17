@@ -10,11 +10,13 @@ public class Opponents
 	public static final String hulijing1 = "QUẪY ĐUÔI.";
 	public static final String hulijing2 = "MUÔN HÌNH VẠN TRẠNG.";
 	public static final String hulijing3 = "BÌNH ĐỊA.";
+	public static final int[] RATE_HULIJING = {1, 11, 26};
 	//--------------------------------------------------
 	//AUCO:
 	public static final String auco1 = "MẮT THẦN.";
 	public static final String auco2 = "CÁNH ĐỒNG BẤT TẬN.";
 	public static final String auco3 = "MẦM SỐNG.";
+	public static final int[] RATE_AUCO = {3, 13, 30};
 	//------------------------------------------------
 	
 	
@@ -23,6 +25,7 @@ public class Opponents
 	 private Skills[][] skills = new Skills[10][3]; // 10 must be changed, since it's the number of levels
 	 private String name;
 	 private int ID;
+	 private int[] skillRate;
 	 
 	 public Opponents(int ID)
 	 {
@@ -34,12 +37,14 @@ public class Opponents
 			 skillName[0] = hulijing1;
 			 skillName[1] = hulijing2;
 			 skillName[2] = hulijing3;
+			 skillRate = RATE_HULIJING;
 			 break;
 		 case 1:
 			 name = "Au Co";
 			 skillName[0] = auco1;
 			 skillName[1] = auco2;
 			 skillName[2] = auco3;
+			 skillRate = RATE_AUCO;
 			 break;
 		default:
 			name = "nothing";
@@ -64,5 +69,10 @@ public class Opponents
 	 public Skills getSkill(int index)
 	 {
 		 return skills[ID][index];
+	 }
+	 
+	 public int[] getSkillRate()
+	 {
+		 return skillRate;
 	 }
 }
