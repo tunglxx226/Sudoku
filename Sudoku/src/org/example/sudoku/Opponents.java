@@ -10,13 +10,13 @@ public class Opponents
 	public static final String hulijing1 = "QUẪY ĐUÔI.";
 	public static final String hulijing2 = "MUÔN HÌNH VẠN TRẠNG.";
 	public static final String hulijing3 = "BÌNH ĐỊA.";
-	public static final int[] RATE_HULIJING = {1, 11, 26};
+	public static final int[] RATE_HULIJING = {26, 11, 1};
 	//--------------------------------------------------
 	//AUCO:
 	public static final String auco1 = "MẮT THẦN.";
 	public static final String auco2 = "CÁNH ĐỒNG BẤT TẬN.";
 	public static final String auco3 = "MẦM SỐNG.";
-	public static final int[] RATE_AUCO = {3, 13, 30};
+	public static final int[] RATE_AUCO = {30, 13, 3};
 	//------------------------------------------------
 	
 	

@@ -3,7 +3,8 @@
 	android:background="@drawable/gamebackground"
 	android:layout_height="fill_parent"
 	android:layout_width="fill_parent"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	android:id="@+id/gameviewlayout">
 	
 
 	<LinearLayout
@@ -25,19 +26,34 @@
 	</LinearLayout>
 
 
-	<LinearLayout
+	<RelativeLayout
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dip"
 	    android:orientation="vertical"
-	    android:layout_weight="50" 
+	    android:layout_weight="50"
+	    android:gravity="center_horizontal" 
 	>
 		<org.example.sudoku.PuzzleView
 	        android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent"
 	    	android:background="@drawable/puzzlebackground"
 	    	android:id="@+id/puzzleId"/>
+
+		<TextView
+		    android:id="@+id/skilltextview"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true" 
+		    android:text="SKILL NAMES"
+		    android:textSize="60dp"
+		    android:gravity="center"
+		    android:visibility="invisible"
+		    android:background="@color/blank_background"
+		    android:textColor="@color/puzzle_foreground"
+		    />
 		
-	</LinearLayout>
+	</RelativeLayout>
 
 	<LinearLayout
 		android:orientation="horizontal"

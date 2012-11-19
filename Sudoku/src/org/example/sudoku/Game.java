@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,10 @@ public class Game extends Activity implements OnClickListener {
 
 	private static final int BLANK = 0;
 	private static final int DEFINED = 1;
+
+	// Background:
+	private static final int backgroundid[] = { R.drawable.hulijingwp,
+			R.drawable.aucowp, R.drawable.gamebackground };
 
 	// Quiz
 	private InputStream is;
@@ -88,6 +93,8 @@ public class Game extends Activity implements OnClickListener {
 	private int invalid_moves = 0;
 
 	public PuzzleView puzzleView;
+	public View gameView;
+	public TextView skillTextView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +103,8 @@ public class Game extends Activity implements OnClickListener {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+		setContentView(R.layout.gameview);
+		skillTextView = (TextView) findViewById(R.id.skilltextview);
 		// Input Stream:
 		is = getResources().openRawResource(R.raw.quiz);
 		bufferedReader = new BufferedReader(new InputStreamReader(is));
@@ -111,7 +120,7 @@ public class Game extends Activity implements OnClickListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		gameView = findViewById(R.id.gameviewlayout);
 		Random rand = new Random();
 		quiz = new Quiz(line[rand.nextInt(fileLength - 1)]);
 		// Show video at the beginning
@@ -119,6 +128,8 @@ public class Game extends Activity implements OnClickListener {
 			Intent i = new Intent(Game.this, VideoviewActivity.class);
 			i.putExtra(VideoviewActivity.setVIDEO, VideoviewActivity.GAME);
 			startActivity(i);
+			gameView.setBackgroundDrawable(getResources().getDrawable(
+					backgroundid[0]));
 		}
 		// ---------------------------------------------------
 
@@ -146,6 +157,8 @@ public class Game extends Activity implements OnClickListener {
 			stopwatch.startAt(atTime);
 			if (storymode == true) {
 				storyProfile = new StoryProfile(level);
+				gameView.setBackgroundDrawable(getResources().getDrawable(
+						backgroundid[level]));
 			}
 			Log.d(TAG, "Level: " + Integer.toString(level));
 		}
@@ -172,9 +185,9 @@ public class Game extends Activity implements OnClickListener {
 		// If game is not finished then continue loading puzzleView
 		if (!isFinished()) {
 
-			setContentView(R.layout.gameview);
 			cont = true;
 			puzzleView = (PuzzleView) findViewById(R.id.puzzleId);
+
 		}
 		// If game is finished, set cont to false and finish the game
 		else {
@@ -730,6 +743,10 @@ public class Game extends Activity implements OnClickListener {
 	// Random skills generate mechanism
 	private void skillsGenerate(int rateSkill2, int rateSkill1, int rateSkill0) {
 		Random srand = new Random();
+		boolean skillInvoked = false;
+		Typeface tf = Typeface
+				.createFromAsset(getAssets(), "fonts/merscrb.ttf");// remember: the font's name extension must be lower case
+		skillTextView.setTypeface(tf);
 		// Skill or not.
 		int i = srand.nextInt(100);
 		/**
@@ -741,22 +758,36 @@ public class Game extends Activity implements OnClickListener {
 					.getSkill(2).getName(), Toast.LENGTH_SHORT);
 			skillEffects(2);
 			toast.show();
+			skillTextView.setText(opponent.getSkill(2).getName());
+			skillInvoked = true;
 		} else if (i < rateSkill1) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(1).getName(), Toast.LENGTH_SHORT);
 			skillEffects(1);
+			skillTextView.setText(opponent.getSkill(1).getName());
 			toast.show();
+			skillInvoked = true;
 		}
 
 		else if (i < rateSkill0) {
 			Toast toast = Toast.makeText(getApplicationContext(), opponent
 					.getSkill(0).getName(), Toast.LENGTH_SHORT);
 			skillEffects(0);
+			skillTextView.setText(opponent.getSkill(0).getName());
 			toast.show();
+			skillInvoked = true;
 		} else {
 			Toast toast = Toast.makeText(getApplicationContext(),
 					"No Skill invoked", Toast.LENGTH_SHORT);
 			toast.show();
+			skillInvoked = false;
+		}
+		if (skillInvoked) {
+			skillTextView.setVisibility(View.VISIBLE);
+			skillTextView.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
+			skillTextView.setVisibility(View.INVISIBLE);
+			skillInvoked = false;
 		}
 	}
 
